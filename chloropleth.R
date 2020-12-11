@@ -1,0 +1,160 @@
+library(dplyr)
+library(rgdal)
+library(plotly)
+library(ggplot2)
+library(leaflet)
+library(htmltools)
+library(htmlwidgets)
+
+#######################
+# LECTURE DES DONNEES #
+#######################
+
+# Je définit le path du wd comme étant le sous dossier data pour lire les couches sig
+setwd("./data/")
+
+# Je lis les données brutes en csv de l'export de la base prométhée
+df_feux <- read.csv2("liste_incendies_ du_07_12_2020_formatte.csv")
+
+# Tableaux croisés dynamiques nombre, surface totale, surface max sur :
+# Année (graphe) commenter
+# mois et heure (surface) commenter
+# départements (graphe) commenter
+
+# Je lis la couche vecteur des régions, départements, communes, epci
+df_reg <- readOGR(dsn=getwd(), layer="REGION")
+df_dep <- readOGR(dsn=getwd(), layer="DEPARTEMENT")
+df_com <- readOGR(dsn=getwd(), layer="COMMUNE")
+df_epci <- readOGR(dsn=getwd(), layer="EPCI")
+
+# Je lis les couches vecteurs des carroyages DFCI
+#df_dfci2 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_2X2_L93")
+#df_dfci20 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_20X20_L93")
+
+#########
+# CARTE #
+#########
+
+# je fait une jointure du shapefile et des donnees promethees sur les champs du code insee
+#df_feux_communes = df_com %>%
+#  merge(
+#    x=df_com,
+#    y=df_feux,
+#    by.x="INSEE_COM",
+#    by.y="code_INSEE",
+#    duplicateGeoms=TRUE
+#    )
+
+# Je redéfinit le path du wd un dossier au dessus dans la racine pour retourner dans le dossier
+# principal du projet.
+setwd("..")
+
+# Définition des écarts de valeurs dans la symologie
+bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
+
+# Définition de la symbologie graphique selon un champ
+palette_feux <- colorBin("YlOrRd",
+                    domain=df_feux$surface_ha,
+                    bins=bins)
+
+# Définition du format des popups
+popup_feux <- sprintf("<strong>%s</strong><br/>%g ha brulés",
+                  df_feux$lieu_dit,
+                  df_feux$surface_ha) %>%
+  lapply(htmltools::HTML)
+
+# Je créé ma carte leaflet de base avec
+map <- leaflet() %>%
+  # Localisation de base de la carte lorsqu'elle est initialisée
+  setView(5, 50, 6) %>%
+  
+  # Ajout des fonds de cartes: group correspond au nom que l'on veut donner au fond de carte
+  # (C'est ce nom que l'on va encapsuler dans un groupe du LayersControl et qui apparaîtra dans
+  # la légende).
+  addTiles(group="OSM (default)") %>%
+  addProviderTiles(providers$Stamen.TonerLite, group="Toner Lite") %>%
+  addProviderTiles(providers$CartoDB.Positron, group="CartoDB") %>%
+  
+  # Ajout des polygones des régions, départements, epci, communes et définition pour chacun
+  # de leur style graphique (sert de fond de carte donc n'utilise pas les données de feux
+  # pour faire des graduations)
+  addPolygons(data=df_reg, fill=FALSE, weight=2, color="#000", group="Régions") %>%
+  addPolygons(data=df_dep, fill=FALSE, weight=1, color="#000", group="Départements") %>%
+  addPolygons(data=df_epci, fill=FALSE, weight=0.5, color="#000", group="EPCI") %>%
+  addPolygons(data=df_com, fill=FALSE, weight=0.05, color="#000", group="Communes") %>%
+  
+  # Ajout des données de feux et définition de leur symbologie unique
+  addPolygons(data=df_com,
+              fillColor=palette_feux,
+              weight=0.2,
+              color="#000",
+              group="Feux",
+              label = popup_feux,
+              labelOptions = labelOptions(
+                style=list(
+                  "font-weight"="normal",
+                  padding="3px 8px"),
+                textsize = "15px",
+                direction = "auto")) %>%
+  
+  # Ajout du menu de control des couches et regroupement des couches par groupes de control.
+  addLayersControl(
+    baseGroups=c("OSM (default)", "Grayscale", "CartoDB"),
+    overlayGroups=c("Régions", "Départements", "EPCI", "Communes", "Feux"),
+    options=layersControlOptions(collapsed=TRUE)) %>%
+  # Je définit quelles couches sont cachées par défaut
+  hideGroup("Communes") %>%
+  hideGroup("Feux") %>%
+  
+  # Ajout tout simple de la barre d'échelle
+  addScaleBar(position="bottomleft") %>%
+  
+  # Ajout de la légende
+  addLegend(pal=palette_feux,
+            values=df_feux$surface_ha,
+            opacity=0.7,
+            title=NULL,
+            position="bottomright")
+
+# Créé litéralement la carte en executant la fonction leaflet derrière
+map
+
+#########
+# GRAPH #
+#########
+
+# Je fais un group by pour regrouper les données selon un champ puis un summarise pour y associer les données
+df_feux_group <- df_feux %>% group_by(annee)
+df_feux_group_sum <- df_feux_group %>% summarise(sum_surface_ha = sum(surface_ha))
+
+# C'est là que je met en forme le graph
+# https://plotly.com/r/line-charts/
+graph <- plot_ly(
+  df_feux_group_sum,
+  x=df_feux_group_sum$annee,
+  y=df_feux_group_sum$sum_surface_ha,
+  name='Feux',
+  type='scatter',
+  mode='lines+markers',
+  color = I('black')
+  )
+
+# Je met en forme le titre du graph ainsi que les titres des axes
+graph <- graph %>% layout(title = 'La surface brulée selon les années (ha)',
+                          xaxis = list(title = 'Années'),
+                          yaxis = list (title = 'Surface brulée (ha)'))
+
+# C'est là que je génère le graph
+graph
+
+##############
+# SAUVEGARDE #
+##############
+
+# Sauvegarde graph (le graphique) vers le fichier plot.html dans le wd par défaut
+# (car je ne l'ai pas redéterminé)
+#saveWidget(graph, file="plot.html")
+
+# Sauvegarde map (la cartographie) vers le fichier map.html dans le wd par défaut
+# (car je ne l'ai pas redéterminé)
+#saveWidget(map, file="map.html")
