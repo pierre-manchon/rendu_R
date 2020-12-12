@@ -166,7 +166,27 @@ feu_par_an <- feu_par_an %>% layout(title = 'La surface brulée selon les année
 # SURFACE PLOT #
 ################
 
-feu_mois_heure <- plot_ly(z = ~volcano) %>%
+# j'extrait les données que je veux mettre en forme dans le surface plot grâce à un group_by
+# puis je continue de les mettre en forme en faisant la somme des surfaces puis je change l'ordre
+# des colonnes en recréant un data frame et enfin je le converti en matrice numérique pour créér
+# le surface plot
+df_feux_prematrix <- df_feux %>% group_by(mois, heure)
+df_feux_prematrix <- df_feux_prematrix %>% summarise(sum_surface_ha = sum(surface_ha))
+
+df_feux_prematrix <- data.frame(
+  surface_ha=df_feux_prematrix$sum_surface_ha,
+  mois=df_feux_prematrix$mois,
+  heure=df_feux_prematrix$heure)
+
+# Je créé une matrice numérique à partir du data frame pour créér le surfaceplot
+df_feux_matrix <- matrix(as.numeric(unlist(df_feux_prematrix)),nrow=nrow(df_feux_prematrix))
+
+# Je supprime le data.frame utilisé pour créér la matrice car il ne nous sert plus
+rm(df_feux_prematrix)
+
+# Je créé le surface plot
+feu_mois_heure <- plot_ly(
+  z= df_feux_matrix) %>%
   add_surface(
     contours=list(
       z=list(
@@ -185,6 +205,7 @@ feu_mois_heure <- feu_mois_heure %>%
           z=-0.64)))) %>%
   config(displayModeBar = FALSE)
 
+# Je génère la visualisation du graph (je l'enregistre en html plus bas)
 feu_mois_heure
 
 ##########
