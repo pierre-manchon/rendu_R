@@ -9,6 +9,7 @@ library(devtools)
 library(htmltools)
 library(quantmod)
 library(htmlwidgets)
+library(RColorBrewer)
 
 #######################
 # LECTURE DES DONNEES #
@@ -62,23 +63,19 @@ palette_feux <- colorBin("YlOrRd",
                     bins=bins)
 
 # Définition du format des popups
-popup_feux <- sprintf("<strong>%s</strong>
-                      <br/>
-                      %g ha brulés",
-                  df_feux$lieu_dit,
-                  df_feux$surface_ha) %>%
+popup_feux <- paste("Commune:", df_com$NOM_COM, "<br/>",
+                    "Aire brulée: ", round(df_feux_communes$surface_ha, 2),
+                    sep="") %>%
   lapply(htmltools::HTML)
 
+# Définition du format de la légende
 # De l'aide sur le formattage di sprintf
 # https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/sprintf
-legend_feux <- sprintf("Région: %s<br/>
-                       Département: %s<br/>
-                       EPCI: %s<br/>
-                       Commune: %s<br/>",
-                       df_reg$NOM_REG,
-                       df_dep$NOM_DEP,
-                       df_epci$NOM_EPCI,
-                       df_com$NOM_COM) %>%
+legend_feux <- paste("Région: ", df_reg$NOM_REG,"<br/>",
+                    "Département: ", df_dep$NOM_DEP, "<br/>",
+                    "EPCI: ", df_epci$NOM_EPCI, "<br/>",
+                    "Commune:", df_com$NOM_COM,
+                    sep="") %>%
   lapply(htmltools::HTML)
 
 # Je créé ma carte leaflet de base avec
@@ -100,19 +97,18 @@ map <- leaflet() %>%
   addPolygons(data=df_epci, fill=FALSE, weight=0.5, color="#000", group="EPCI") %>%
   addPolygons(data=df_com, fill=FALSE, weight=0.1, color="#000", group="Communes") %>%
   
-  # Ajout des données de feux et définition de leur symbologie unique
-  addPolygons(data=df_com,
-              fillColor=palette_feux,
-              weight=0.2,
-              color="#000",
-              group="Feux",
-              label = popup_feux,
-              labelOptions = labelOptions(
-                style=list(
-                "font-weight"="normal",
-                  padding="3px 8px"),
-                textsize = "15px",
-                direction = "auto")) %>%
+  addPolygons( 
+    fillColor = ~palette_feux(surface_ha),
+    stroke=TRUE,
+    fillOpacity = 0.9,
+    color="white",
+    weight=0.3,
+    label = popup_feux,
+    labelOptions = labelOptions( 
+      style = list("font-weight" = "normal", padding = "3px 8px"), 
+      textsize = "13px", 
+      direction = "auto"
+    )) %>%
   
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
@@ -131,7 +127,8 @@ map <- leaflet() %>%
   # Ajout de la légende
   # TODO raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
   # écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problème
-  leaflet::addLegend(map, values="a", pal=palette_feux, position="bottomright")
+  #leaflet::addLegend(map, values="a", pal=palette_feux, position="bottomright")
+  addLegend(pal=palette_feux, values=~surface_ha, opacity=0.9, title = "Surface brulée (ha)", position = "bottomright" )
 
 # Créé litéralement la carte en executant la fonction leaflet derrière
 # C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
@@ -171,7 +168,7 @@ feu_par_an <- feu_par_an %>% layout(title = 'La surface brulée selon les année
 
 # C'est là que je génère le rendu du graph dans le viewer en appelant la fonction graph
 # (je préfère le sauvegarder en html directement)
-#graph
+#feu_par_an
 
 ################
 # SURFACE PLOT #
@@ -215,9 +212,22 @@ feu_par_an <- feu_par_an %>% layout(title = 'La surface brulée selon les année
 # (car je ne l'ai pas redéterminé)
 saveWidget(feu_par_an, file="feu_par_an.html")
 
+# Maintenant que c'est enregistré je peux supprimer toutes les variables qui m'ont permise de générer le graph
+rm(df_feux_group)
+rm(df_feux_group_sum)
+rm(feu_par_an)
+
 # Sauvegarde le graph de surface vers feu_mois_heure.html
 saveWidget(feu_mois_heure, file="feu_mois_heure.html")
 
+# Maintenant que c'est enregistré je peux supprimer toutes les variables qui m'ont permise de générer le graph
+rm(df_feux_matrix)
+rm(feu_mois_heure)
+
 # Sauvegarde map (la cartographie) vers le fichier map.html dans le wd par défaut
 # (car je ne l'ai pas redéterminé)
-saveWidget(map, file="map.html")
+# TODO ça crash...
+#saveWidget(map, file="map.html")
+
+# Maintenant que c'est enregistré je peux supprimer toutes les variables qui m'ont permise de générer le graph
+rm(map)
