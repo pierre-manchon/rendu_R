@@ -1,3 +1,4 @@
+library(rgl)
 library(dplyr)
 library(rgdal)
 library(plotly)
@@ -124,11 +125,11 @@ map <- leaflet() %>%
 # Créé litéralement la carte en executant la fonction leaflet derrière
 # C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
 # (je préfère la sauvegarder en html directement à la fin du script)
-map
+#map
 
-#########
-# GRAPH #
-#########
+############
+# GRAPH 2D #
+###########
 
 # Je fais un group by pour regrouper les données selon un champ puis un summarise pour y associer les données
 df_feux_group <- df_feux %>% group_by(annee)
@@ -159,11 +160,30 @@ feu_par_an <- feu_par_an %>% layout(title = 'La surface brulée selon les année
 
 # C'est là que je génère le rendu du graph dans le viewer en appelant la fonction graph
 # (je préfère le sauvegarder en html directement)
-# graph
+#graph
 
-##############
-# SAUVEGARDE #
-##############
+############
+# GRAPH 3D #
+############
+
+# Add a new column with color
+mycolors <- c('royalblue1', 'darkcyan', 'oldlace')
+data$color <- mycolors[ as.numeric(data$Species) ]
+
+# Plot
+par(mar=c(0,0,0,0))
+plot3d( 
+  x=data$`Sepal.Length`, y=data$`Sepal.Width`, z=data$`Petal.Length`, 
+  col = data$color, 
+  type = 's', 
+  radius = .1,
+  xlab="Sepal Length", ylab="Sepal Width", zlab="Petal Length")
+
+writeWebGL( filename="HtmlWidget/3dscatter.html" ,  width=600, height=600)
+
+##########
+# EXPORT #
+##########
 
 # Sauvegarde graph (le graphique) vers le fichier plot.html dans le wd par défaut
 # (car je ne l'ai pas redéterminé)
