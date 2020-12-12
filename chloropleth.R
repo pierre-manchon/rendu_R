@@ -145,8 +145,34 @@ graph <- plot_ly(
 
 # Je met en forme le titre du graph ainsi que les titres des axes
 graph <- graph %>% layout(title = 'La surface brulée selon les années (ha)',
-                          xaxis = list(title = 'Années'),
-                          yaxis = list (title = 'Surface brulée (ha)'))
+                          xaxis = list(title = 'Années',
+                                       rangeselector = list(
+                                         buttons = list(
+                                           list(
+                                             count = 3,
+                                             label = "3 mois",
+                                             step = "month",
+                                             stepmode = "backward"),
+                                           list(
+                                             count = 6,
+                                             label = "6 mois",
+                                             step = "month",
+                                             stepmode = "backward"),
+                                           list(
+                                             count = 1,
+                                             label = "1 an",
+                                             step = "year",
+                                             stepmode = "backward"),
+                                           list(
+                                             count = 1,
+                                             label = "Année à ajd",
+                                             step = "year",
+                                             stepmode = "todate"),
+                                           list(step = "Tout"))),
+                                       rangeslider = list(type = "date")),
+                          yaxis = list (title = 'Surface brulée (ha)')) %>% 
+  config(displayModeBar = FALSE) %>%  # Cache les commandes du graph par défaut.
+  layout(hovermode = 'compare') # Met le mode "Compare data on hover" activé par défaut.
 
 # C'est là que je génère le graph
 graph
