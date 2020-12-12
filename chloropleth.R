@@ -128,6 +128,7 @@ map <- leaflet() %>%
   addScaleBar(position="bottomleft") %>%
   
   # Ajout de la légende
+  # TODO raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
   addLegend(values=legend_feux,
             position="bottomright")
 
