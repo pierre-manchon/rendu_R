@@ -33,7 +33,7 @@ df_com <- readOGR(dsn=getwd(), layer="COMMUNE")
 df_epci <- readOGR(dsn=getwd(), layer="EPCI")
 
 # Je lis les couches vecteurs des carroyages DFCI
-df_dfci2 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_2X2_L93")
+#df_dfci2 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_2X2_L93")
 df_dfci20 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_20X20_L93")
 
 # Je redéfinit le path du wd un dossier au dessus dans la racine pour retourner dans le dossier
@@ -59,11 +59,11 @@ bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
 
 # Définition de la symbologie graphique selon un champ
 palette_feux <- colorBin("YlOrRd",
-                    domain=df_feux$surface_ha,
+                    domain=df_feux_communes$surface_ha,
                     bins=bins)
 
 # Définition du format des popups
-popup_feux <- paste("Commune:", df_com$NOM_COM, "<br/>",
+popup_feux <- paste("Commune:", df_feux_communes$NOM_COM, "<br/>",
                     "Aire brulée: ", round(df_feux_communes$surface_ha, 2),
                     sep="") %>%
   lapply(htmltools::HTML)
@@ -97,17 +97,18 @@ map <- leaflet() %>%
   addPolygons(data=df_epci, fill=FALSE, weight=0.5, color="#000", group="EPCI") %>%
   addPolygons(data=df_com, fill=FALSE, weight=0.1, color="#000", group="Communes") %>%
   
-  addPolygons( 
-    fillColor = ~palette_feux(surface_ha),
+  addPolygons(
+    data=df_feux_communes,
+    fillColor=palette_feux(df_feux_communes$surface_ha),
     stroke=TRUE,
     fillOpacity = 0.9,
     color="white",
     weight=0.3,
-    label = popup_feux,
-    labelOptions = labelOptions( 
-      style = list("font-weight" = "normal", padding = "3px 8px"), 
-      textsize = "13px", 
-      direction = "auto"
+    label=popup_feux,
+    labelOptions=labelOptions( 
+      style=list("font-weight"="normal", padding="3px 8px"), 
+      textsize="13px", 
+      direction="auto"
     )) %>%
   
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
@@ -128,7 +129,11 @@ map <- leaflet() %>%
   # TODO raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
   # écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problème
   #leaflet::addLegend(map, values="a", pal=palette_feux, position="bottomright")
-  addLegend(pal=palette_feux, values=~surface_ha, opacity=0.9, title = "Surface brulée (ha)", position = "bottomright" )
+  addLegend(pal=palette_feux,
+            values=df_feux_communes$surface_ha,
+            opacity=0.9,
+            title="Surface brulée (ha)",
+            position="bottomleft" )
 
 # Créé litéralement la carte en executant la fonction leaflet derrière
 # C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
