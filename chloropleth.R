@@ -147,17 +147,18 @@ map
 # Je créé une fonction pour pouvoir génére des graphs basiques plus facilement
 static_graph <- function(dataframe="", fieldx="", fieldy="", plotting_method="o", title="title", xlab="xlab", ylab="ylab") {
   df_groupped <- dataframe %>% group_by(fieldx) %>% summarise(summed_field=sum(fieldy))
-  return(df_groupped, type=plotting_method, main=title, xlab=xlab, ylab=ylab)
+  plot(df_groupped, type=plotting_method, main=title, xlab=xlab, ylab=ylab)
+  return("Test")
 }
 
 # Je fais un group by pour regrouper les données selon un champ puis un summarise pour y associer les données
-df_feux_group <- df_feux %>% group_by(annee) %>% summarise(sum_surface_ha = sum(surface_ha))
+df_feux_gb_annee_surfha_nbr <- df_feux %>% group_by(annee) %>% summarize(sum_surface_ha=sum(surface_ha), nbr=n())
 
-plot(df_feux_group, type="o", main="", xlab="Années", ylab="Surface (ha)")
+plot(df_feux_gb_annee_surfha_nbr, type="o", main="", xlab="Années", ylab="Surface (ha)")
 
 static_graph(dataframe=df_feux,
-             fieldx="annee",
-             fieldy="surface_ha",
+             fieldx=df_feux$annee,
+             fieldy=df_feux$surface_ha,
              plotting_method="o",
              title="Test title",
              xlab="Test XLAB",
@@ -166,17 +167,22 @@ static_graph(dataframe=df_feux,
 # C'est là que je met en forme le graph
 # https://plotly.com/r/line-charts/
 feu_par_an <- plot_ly(
-  df_feux_group_sum,
-  x=df_feux_group_sum$annee,
-  y=df_feux_group_sum$sum_surface_ha,
-  name='Feux',
-  type='scatter',
-  mode='lines+markers',
-  color = I('black')
-  )
+  data=df_feux_gb_annee_surfha_nbr,
+  x=df_feux_gb_annee_surfha_nbr$annee,
+  y=df_feux_gb_annee_surfha_nbr$sum_surface_ha,
+  name="Surface totale brulée par année",
+  type="scatter",
+  mode="lines+markers",
+  color=I('blue')
+  ) %>%
+  add_trace(y=df_feux_gb_annee_surfha_nbr$nbr,
+            name="Nombre d'incendies",
+            type="scatter",
+            mode="lines+markers",
+            color=I("red"))
 
 # Je met en forme le titre du graph ainsi que les titres des axes
-feu_par_an <- feu_par_an %>% layout(title = 'La surface brulée selon les années (ha)',
+feu_par_an <- feu_par_an %>% layout(title = "Surface totale brulée et nombre d'incendies selon les années (ha)",
                           xaxis = list(
                             rangeslider=list(
                               type="date"),
