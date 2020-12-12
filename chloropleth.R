@@ -58,7 +58,9 @@ palette_feux <- colorBin("YlOrRd",
                     bins=bins)
 
 # Définition du format des popups
-popup_feux <- sprintf("<strong>%s</strong><br/>%g ha brulés",
+popup_feux <- sprintf("<strong>%s</strong>
+                      <br/>
+                      %g ha brulés",
                   df_feux$lieu_dit,
                   df_feux$surface_ha) %>%
   lapply(htmltools::HTML)
@@ -81,7 +83,7 @@ map <- leaflet() %>%
   addPolygons(data=df_reg, fill=FALSE, weight=2, color="#000", group="Régions") %>%
   addPolygons(data=df_dep, fill=FALSE, weight=1, color="#000", group="Départements") %>%
   addPolygons(data=df_epci, fill=FALSE, weight=0.5, color="#000", group="EPCI") %>%
-  addPolygons(data=df_com, fill=FALSE, weight=0.05, color="#000", group="Communes") %>%
+  addPolygons(data=df_com, fill=FALSE, weight=0.1, color="#000", group="Communes") %>%
   
   # Ajout des données de feux et définition de leur symbologie unique
   addPolygons(data=df_com,
