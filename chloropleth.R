@@ -124,7 +124,7 @@ map <- leaflet() %>%
 # Créé litéralement la carte en executant la fonction leaflet derrière
 # C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
 # (je préfère la sauvegarder en html directement à la fin du script)
-#map
+map
 
 #########
 # GRAPH #
@@ -136,7 +136,7 @@ df_feux_group_sum <- df_feux_group %>% summarise(sum_surface_ha = sum(surface_ha
 
 # C'est là que je met en forme le graph
 # https://plotly.com/r/line-charts/
-graph <- plot_ly(
+feu_par_an <- plot_ly(
   df_feux_group_sum,
   x=df_feux_group_sum$annee,
   y=df_feux_group_sum$sum_surface_ha,
@@ -147,7 +147,7 @@ graph <- plot_ly(
   )
 
 # Je met en forme le titre du graph ainsi que les titres des axes
-graph <- graph %>% layout(title = 'La surface brulée selon les années (ha)',
+feu_par_an <- feu_par_an %>% layout(title = 'La surface brulée selon les années (ha)',
                           xaxis = list(
                             rangeslider=list(
                               type="date"),
@@ -167,7 +167,7 @@ graph <- graph %>% layout(title = 'La surface brulée selon les années (ha)',
 
 # Sauvegarde graph (le graphique) vers le fichier plot.html dans le wd par défaut
 # (car je ne l'ai pas redéterminé)
-saveWidget(graph, file="plot.html")
+saveWidget(feu_par_an, file="feu_par_an.html")
 
 # Sauvegarde map (la cartographie) vers le fichier map.html dans le wd par défaut
 # (car je ne l'ai pas redéterminé)
