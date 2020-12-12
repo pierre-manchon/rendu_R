@@ -69,16 +69,17 @@ popup_feux <- sprintf("<strong>%s</strong>
                   df_feux$surface_ha) %>%
   lapply(htmltools::HTML)
 
+# De l'aide sur le formattage di sprintf
+# https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/sprintf
 legend_feux <- sprintf("Région: %s<br/>
-                        Département: %g<br/>
-                       EPCI: %j<br/>
-                       Commune: %l",
+                       Département: %s<br/>
+                       EPCI: %s<br/>
+                       Commune: %s<br/>",
                        df_reg$NOM_REG,
                        df_dep$NOM_DEP,
                        df_epci$NOM_EPCI,
                        df_com$NOM_COM) %>%
   lapply(htmltools::HTML)
-
 
 # Je créé ma carte leaflet de base avec
 map <- leaflet() %>%
@@ -129,8 +130,8 @@ map <- leaflet() %>%
   
   # Ajout de la légende
   # TODO raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
-  addLegend(values=legend_feux,
-            position="bottomright")
+  # écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problème
+  leaflet::addLegend(map, values="a", pal=palette_feux, position="bottomright")
 
 # Créé litéralement la carte en executant la fonction leaflet derrière
 # C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
