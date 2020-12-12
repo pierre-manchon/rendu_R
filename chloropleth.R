@@ -182,20 +182,20 @@ feu_par_an <- plot_ly(
             color=I("red"))
 
 # Je met en forme le titre du graph ainsi que les titres des axes
-feu_par_an <- feu_par_an %>% layout(title = "Surface totale brulée et nombre d'incendies selon les années (ha)",
-                          xaxis = list(
-                            rangeslider=list(
-                              type="date"),
-                            title="Années"),
-                          yaxis=list(
-                            title='Surface brulée (ha)')) %>% 
-  config(displayModeBar = FALSE) %>%  # Cache les commandes du graph par défaut.
+feu_par_an <- feu_par_an %>% layout(title = "Surface totale brulée et
+                                    nombre d'incendies selon les années (ha)",
+                                    hovermode='compare',
+                                    legend=list(orientation='h'),
+                                    xaxis=list(title="Années",
+                                               rangeslider=list(
+                                                 type="date")),
+                                    yaxis=list(visible=FALSE)) %>% 
+  config(displayModeBar = FALSE)  # Cache les commandes du graph par défaut.
   # Met le mode "Compare data on hover" activé par défaut.
-  layout(hovermode='compare', legend=list(orientation='h'))
 
 # C'est là que je génère le rendu du graph dans le viewer en appelant la fonction graph
 # (je préfère le sauvegarder en html directement)
-#feu_par_an
+feu_par_an
 
 ################
 # SURFACE PLOT #
