@@ -31,6 +31,10 @@ df_epci <- readOGR(dsn=getwd(), layer="EPCI")
 #df_dfci2 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_2X2_L93")
 #df_dfci20 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_20X20_L93")
 
+# Je redéfinit le path du wd un dossier au dessus dans la racine pour retourner dans le dossier
+# principal du projet.
+setwd("..")
+
 #########
 # CARTE #
 #########
@@ -44,10 +48,6 @@ df_epci <- readOGR(dsn=getwd(), layer="EPCI")
 #    by.y="code_INSEE",
 #    duplicateGeoms=TRUE
 #    )
-
-# Je redéfinit le path du wd un dossier au dessus dans la racine pour retourner dans le dossier
-# principal du projet.
-setwd("..")
 
 # Définition des écarts de valeurs dans la symologie
 bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
@@ -103,6 +103,8 @@ map <- leaflet() %>%
     overlayGroups=c("Régions", "Départements", "EPCI", "Communes", "Feux"),
     options=layersControlOptions(collapsed=TRUE)) %>%
   # Je définit quelles couches sont cachées par défaut
+  # Ca aide à ce que la carte charge plus vite.
+  hideGroup("EPCI") %>%
   hideGroup("Communes") %>%
   hideGroup("Feux") %>%
   
@@ -153,8 +155,8 @@ graph
 
 # Sauvegarde graph (le graphique) vers le fichier plot.html dans le wd par défaut
 # (car je ne l'ai pas redéterminé)
-#saveWidget(graph, file="plot.html")
+saveWidget(graph, file="plot.html")
 
 # Sauvegarde map (la cartographie) vers le fichier map.html dans le wd par défaut
 # (car je ne l'ai pas redéterminé)
-#saveWidget(map, file="map.html")
+saveWidget(map, file="map.html")
