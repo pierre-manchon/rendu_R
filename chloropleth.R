@@ -153,18 +153,16 @@ rm(map)
 ###########
 
 # TODO Je créé une fonction pour pouvoir génére des graphs basiques plus facilement
+# df_plot <- df_feux %>% group_by(annee) %>% summarize(nbr=n())
+# plot(df_plot, type="o", main="", xlab="Années", ylab="Nbr incendies")
 # il ne reconnait pas les params field comme étant le nom des champ à grouper
-static_graph <- function(dataframe="", fieldx="", fieldy="", plotting_method="o", title="title", xlab="xlab", ylab="ylab") {
-  df_groupped <- dataframe %>% group_by(fieldx) %>% summarise(summed_field=sum(fieldy))
-  plot(df_groupped, type=plotting_method, main=title, xlab=xlab, ylab=ylab)
-  return("Test")
+to_plot<- function(df, colname="", plotting_method="o", title="title", xlab="xlab", ylab="ylab") {
+  df_plot <- df %>% group_by(x=df[colname]) %>% summarize(y=n())
+  return(plot(df, type=plotting_method, main=title, xlab=xlab, ylab=ylab))
 }
 
-plot(df_feux_gb_annee_surfha_nbr, type="o", main="", xlab="Années", ylab="Surface (ha)")
-
-static_graph(dataframe=df_feux,
-             fieldx=df_feux$annee,
-             fieldy=df_feux$surface_ha,
+to_plot(df=df_feux,
+             colname="annee",
              plotting_method="o",
              title="Test title",
              xlab="Test XLAB",
