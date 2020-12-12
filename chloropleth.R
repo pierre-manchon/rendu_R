@@ -162,32 +162,41 @@ feu_par_an <- feu_par_an %>% layout(title = 'La surface brulée selon les année
 # (je préfère le sauvegarder en html directement)
 #graph
 
-############
-# GRAPH 3D #
-############
+################
+# SURFACE PLOT #
+################
 
-# Add a new column with color
-mycolors <- c('royalblue1', 'darkcyan', 'oldlace')
-data$color <- mycolors[ as.numeric(data$Species) ]
+feu_mois_heure <- plot_ly(z = ~volcano) %>%
+  add_surface(
+    contours=list(
+      z=list(
+        show=TRUE,
+        usecolormap=TRUE,
+        highlightcolor="#ff0000",
+        project=list(z=TRUE))))
 
-# Plot
-par(mar=c(0,0,0,0))
-plot3d( 
-  x=data$`Sepal.Length`, y=data$`Sepal.Width`, z=data$`Petal.Length`, 
-  col = data$color, 
-  type = 's', 
-  radius = .1,
-  xlab="Sepal Length", ylab="Sepal Width", zlab="Petal Length")
+feu_mois_heure <- feu_mois_heure %>%
+  layout(
+    scene=list(
+      camera=list(
+        eye=list(
+          x=1.87,
+          y=0.88,
+          z=-0.64)))) %>%
+  config(displayModeBar = FALSE)
 
-writeWebGL( filename="HtmlWidget/3dscatter.html" ,  width=600, height=600)
+feu_mois_heure
 
 ##########
 # EXPORT #
 ##########
 
-# Sauvegarde graph (le graphique) vers le fichier plot.html dans le wd par défaut
+# Sauvegarde graph (le graphique 2D) vers le fichier feu_par_an.html dans le wd par défaut
 # (car je ne l'ai pas redéterminé)
 saveWidget(feu_par_an, file="feu_par_an.html")
+
+# Sauvegarde le graph de surface vers feu_mois_heure.html
+saveWidget(feu_mois_heure, file="feu_mois_heure.html")
 
 # Sauvegarde map (la cartographie) vers le fichier map.html dans le wd par défaut
 # (car je ne l'ai pas redéterminé)
