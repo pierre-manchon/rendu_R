@@ -138,13 +138,22 @@ map <- leaflet() %>%
 # Créé litéralement la carte en executant la fonction leaflet derrière
 # C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
 # (je préfère la sauvegarder en html directement à la fin du script)
-map
+#map
+
+# Sauvegarde map (la cartographie) vers le fichier map.html dans le wd par défaut
+# (car je ne l'ai pas redéterminé)
+# TODO ça crash...
+#saveWidget(map, file="map.html")
+
+# Maintenant que c'est enregistré je peux supprimer toutes les variables qui m'ont permise de générer le graph
+rm(map)
 
 ############
 # GRAPH 2D #
 ###########
 
-# Je créé une fonction pour pouvoir génére des graphs basiques plus facilement
+# TODO Je créé une fonction pour pouvoir génére des graphs basiques plus facilement
+# il ne reconnait pas les params field comme étant le nom des champ à grouper
 static_graph <- function(dataframe="", fieldx="", fieldy="", plotting_method="o", title="title", xlab="xlab", ylab="ylab") {
   df_groupped <- dataframe %>% group_by(fieldx) %>% summarise(summed_field=sum(fieldy))
   plot(df_groupped, type=plotting_method, main=title, xlab=xlab, ylab=ylab)
@@ -297,11 +306,3 @@ saveWidget(feu_mois_heure, file="feu_mois_heure.html")
 # Maintenant que c'est enregistré je peux supprimer toutes les variables qui m'ont permise de générer le graph
 rm(df_feux_matrix)
 rm(feu_mois_heure)
-
-# Sauvegarde map (la cartographie) vers le fichier map.html dans le wd par défaut
-# (car je ne l'ai pas redéterminé)
-# TODO ça crash...
-#saveWidget(map, file="map.html")
-
-# Maintenant que c'est enregistré je peux supprimer toutes les variables qui m'ont permise de générer le graph
-rm(map)
