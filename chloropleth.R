@@ -1,9 +1,11 @@
 library(rgl)
+library(xts)
 library(dplyr)
 library(rgdal)
 library(plotly)
 library(ggplot2)
 library(leaflet)
+library(devtools)
 library(htmltools)
 library(quantmod)
 library(htmlwidgets)
@@ -30,8 +32,8 @@ df_com <- readOGR(dsn=getwd(), layer="COMMUNE")
 df_epci <- readOGR(dsn=getwd(), layer="EPCI")
 
 # Je lis les couches vecteurs des carroyages DFCI
-#df_dfci2 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_2X2_L93")
-#df_dfci20 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_20X20_L93")
+df_dfci2 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_2X2_L93")
+df_dfci20 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_20X20_L93")
 
 # Je redéfinit le path du wd un dossier au dessus dans la racine pour retourner dans le dossier
 # principal du projet.
@@ -42,14 +44,14 @@ setwd("..")
 #########
 
 # je fait une jointure du shapefile et des donnees promethees sur les champs du code insee
-#df_feux_communes = df_com %>%
-#  merge(
-#    x=df_com,
-#    y=df_feux,
-#    by.x="INSEE_COM",
-#    by.y="code_INSEE",
-#    duplicateGeoms=TRUE
-#    )
+df_feux_communes = df_com %>%
+  merge(
+    x=df_com,
+    y=df_feux,
+    by.x="INSEE_COM",
+    by.y="code_INSEE",
+    duplicateGeoms=TRUE
+    )
 
 # Définition des écarts de valeurs dans la symologie
 bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
@@ -125,7 +127,7 @@ map <- leaflet() %>%
 # Créé litéralement la carte en executant la fonction leaflet derrière
 # C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
 # (je préfère la sauvegarder en html directement à la fin du script)
-#map
+map
 
 ############
 # GRAPH 2D #
@@ -170,43 +172,31 @@ feu_par_an <- feu_par_an %>% layout(title = 'La surface brulée selon les année
 # puis je continue de les mettre en forme en faisant la somme des surfaces puis je change l'ordre
 # des colonnes en recréant un data frame et enfin je le converti en matrice numérique pour créér
 # le surface plot
-df_feux_prematrix <- df_feux %>% group_by(mois, heure)
-df_feux_prematrix <- df_feux_prematrix %>% summarise(sum_surface_ha = sum(surface_ha))
+#df_feux_prematrix <- df_feux %>% group_by(mois, heure)
+#df_feux_prematrix <- df_feux_prematrix %>% summarise(sum_surface_ha = sum(surface_ha))
 
-df_feux_prematrix <- data.frame(
-  surface_ha=df_feux_prematrix$sum_surface_ha,
-  mois=df_feux_prematrix$mois,
-  heure=df_feux_prematrix$heure)
+#df_feux_prematrix <- data.frame(
+#  mois=df_feux_prematrix$mois,
+#  heure=df_feux_prematrix$heure,
+#  surface_ha=df_feux_prematrix$sum_surface_ha)
 
 # Je créé une matrice numérique à partir du data frame pour créér le surfaceplot
-df_feux_matrix <- matrix(as.numeric(unlist(df_feux_prematrix)),nrow=nrow(df_feux_prematrix))
+#df_feux_matrix <- matrix(as.numeric(unlist(df_feux_prematrix)),nrow=nrow(df_feux_prematrix))
 
 # Je supprime le data.frame utilisé pour créér la matrice car il ne nous sert plus
-rm(df_feux_prematrix)
+#rm(df_feux_prematrix)
 
 # Je créé le surface plot
-feu_mois_heure <- plot_ly(
-  z= df_feux_matrix) %>%
-  add_surface(
-    contours=list(
-      z=list(
-        show=TRUE,
-        usecolormap=TRUE,
-        highlightcolor="#ff0000",
-        project=list(z=TRUE))))
-
-feu_mois_heure <- feu_mois_heure %>%
-  layout(
-    scene=list(
-      camera=list(
-        eye=list(
-          x=1.87,
-          y=0.88,
-          z=-0.64)))) %>%
-  config(displayModeBar = FALSE)
+#feu_mois_heure <- plot_ly(z=df_feux_matrix) %>%
+#  add_surface(contours=list(z=list(show=TRUE,
+#                                   usecolormap=TRUE,
+#                                   highlightcolor="#ff0000",
+#                                   project=list(z=TRUE))))
+#feu_mois_heure <- feu_mois_heure %>%
+#  config(displayModeBar = FALSE)
 
 # Je génère la visualisation du graph (je l'enregistre en html plus bas)
-feu_mois_heure
+#feu_mois_heure
 
 ##########
 # EXPORT #
