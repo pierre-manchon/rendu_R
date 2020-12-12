@@ -123,7 +123,7 @@ map <- leaflet() %>%
 
 # Créé litéralement la carte en executant la fonction leaflet derrière
 # C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
-# (je préfère la sauvegarder en html directement)
+# (je préfère la sauvegarder en html directement à la fin du script)
 #map
 
 #########
@@ -149,30 +149,6 @@ graph <- plot_ly(
 # Je met en forme le titre du graph ainsi que les titres des axes
 graph <- graph %>% layout(title = 'La surface brulée selon les années (ha)',
                           xaxis = list(
-                            rangeselector=list(
-                              buttons=list(
-                                list(
-                                  count=3,
-                                  label="3 mois",
-                                  step="month",
-                                  stepmode="backward"),
-                                list(
-                                  count=6,
-                                  label="6 mois",
-                                  step="month",
-                                  stepmode="backward"),
-                                list(
-                                  count=1,
-                                  label="1 an",
-                                  step="year",
-                                  stepmode="backward"),
-                                list(
-                                  count=1,
-                                  label="Année à ajd",
-                                  step="year",
-                                  stepmode="todate"),
-                                list(
-                                  step="Tout"))),
                             rangeslider=list(
                               type="date"),
                             title="Années"),
