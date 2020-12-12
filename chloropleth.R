@@ -190,7 +190,8 @@ feu_par_an <- feu_par_an %>% layout(title = "Surface totale brulée et nombre d'
                           yaxis=list(
                             title='Surface brulée (ha)')) %>% 
   config(displayModeBar = FALSE) %>%  # Cache les commandes du graph par défaut.
-  layout(hovermode = 'compare') # Met le mode "Compare data on hover" activé par défaut.
+  # Met le mode "Compare data on hover" activé par défaut.
+  layout(hovermode='compare', legend=list(orientation='h'))
 
 # C'est là que je génère le rendu du graph dans le viewer en appelant la fonction graph
 # (je préfère le sauvegarder en html directement)
