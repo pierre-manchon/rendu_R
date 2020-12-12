@@ -144,8 +144,9 @@ map
 # GRAPH 2D #
 ###########
 
-static_graph <- function(dataframe="", fields=c(...), plotting_method="o", title="title", xlab="xlab", ylab="ylab") {
-  df_groupped <- dataframe %>% group_by(fields[1]) %>% summarise(summed_field=sum(fields[2]))
+# Je créé une fonction pour pouvoir génére des graphs basiques plus facilement
+static_graph <- function(dataframe="", fieldx="", fieldy="", plotting_method="o", title="title", xlab="xlab", ylab="ylab") {
+  df_groupped <- dataframe %>% group_by(fieldx) %>% summarise(summed_field=sum(fieldy))
   return(df_groupped, type=plotting_method, main=title, xlab=xlab, ylab=ylab)
 }
 
@@ -154,7 +155,13 @@ df_feux_group <- df_feux %>% group_by(annee) %>% summarise(sum_surface_ha = sum(
 
 plot(df_feux_group, type="o", main="", xlab="Années", ylab="Surface (ha)")
 
-plot(static_graph(df_feux, c("annee", "surface_ha"), "o", "Test title", "Test XLAB", "Test YLAB"))
+static_graph(dataframe=df_feux,
+             fieldx="annee",
+             fieldy="surface_ha",
+             plotting_method="o",
+             title="Test title",
+             xlab="Test XLAB",
+             ylab="Test YLAB")
 
 # C'est là que je met en forme le graph
 # https://plotly.com/r/line-charts/
