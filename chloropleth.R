@@ -4,6 +4,7 @@ library(plotly)
 library(ggplot2)
 library(leaflet)
 library(htmltools)
+library(quantmod)
 library(htmlwidgets)
 
 #######################
