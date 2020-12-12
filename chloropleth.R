@@ -69,6 +69,17 @@ popup_feux <- sprintf("<strong>%s</strong>
                   df_feux$surface_ha) %>%
   lapply(htmltools::HTML)
 
+legend_feux <- sprintf("Région: %s<br/>
+                        Département: %g<br/>
+                       EPCI: %j<br/>
+                       Commune: %l",
+                       df_reg$NOM_REG,
+                       df_dep$NOM_DEP,
+                       df_epci$NOM_EPCI,
+                       df_com$NOM_COM) %>%
+  lapply(htmltools::HTML)
+
+
 # Je créé ma carte leaflet de base avec
 map <- leaflet() %>%
   # Localisation de base de la carte lorsqu'elle est initialisée
@@ -78,7 +89,6 @@ map <- leaflet() %>%
   # (C'est ce nom que l'on va encapsuler dans un groupe du LayersControl et qui apparaîtra dans
   # la légende).
   addTiles(group="OSM (default)") %>%
-  addProviderTiles(providers$Stamen.TonerLite, group="Toner Lite") %>%
   addProviderTiles(providers$CartoDB.Positron, group="CartoDB") %>%
   
   # Ajout des polygones des régions, départements, epci, communes et définition pour chacun
@@ -98,14 +108,14 @@ map <- leaflet() %>%
               label = popup_feux,
               labelOptions = labelOptions(
                 style=list(
-                  "font-weight"="normal",
+                "font-weight"="normal",
                   padding="3px 8px"),
                 textsize = "15px",
                 direction = "auto")) %>%
   
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
-    baseGroups=c("OSM (default)", "Grayscale", "CartoDB"),
+    baseGroups=c("OSM (default)", "CartoDB"),
     overlayGroups=c("Régions", "Départements", "EPCI", "Communes", "Feux"),
     options=layersControlOptions(collapsed=TRUE)) %>%
   # Je définit quelles couches sont cachées par défaut
@@ -118,10 +128,7 @@ map <- leaflet() %>%
   addScaleBar(position="bottomleft") %>%
   
   # Ajout de la légende
-  addLegend(pal=palette_feux,
-            values=df_feux$surface_ha,
-            opacity=0.7,
-            title=NULL,
+  addLegend(values=legend_feux,
             position="bottomright")
 
 # Créé litéralement la carte en executant la fonction leaflet derrière
