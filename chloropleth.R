@@ -151,9 +151,6 @@ static_graph <- function(dataframe="", fieldx="", fieldy="", plotting_method="o"
   return("Test")
 }
 
-# Je fais un group by pour regrouper les données selon un champ puis un summarise pour y associer les données
-df_feux_gb_annee_surfha_nbr <- df_feux %>% group_by(annee) %>% summarize(surface_ha_max=round(max(surface_ha)), sum_surface_ha=round(sum(surface_ha)), nbr=n())
-
 plot(df_feux_gb_annee_surfha_nbr, type="o", main="", xlab="Années", ylab="Surface (ha)")
 
 static_graph(dataframe=df_feux,
@@ -164,19 +161,22 @@ static_graph(dataframe=df_feux,
              xlab="Test XLAB",
              ylab="Test YLAB")
 
+# Je fais un group by pour regrouper les données selon un champ puis un summarise pour y associer les données
+df_feux_gb_annee_surfha_nbr <- df_feux %>% group_by(annee) %>% summarize(surface_ha_max=round(max(surface_ha)), sum_surface_ha=round(sum(surface_ha)), nbr=n())
+
 # C'est là que je met en forme le graph
 # https://plotly.com/r/line-charts/
 feu_par_ans <- plot_ly(
   data=df_feux_gb_annee_surfha_nbr,
   x=df_feux_gb_annee_surfha_nbr$annee,
   y=df_feux_gb_annee_surfha_nbr$sum_surface_ha,
-  name="Surface totale brulée par année",
+  name="Surface totale brulée",
   type="scatter",
   mode="lines+markers",
-  color=I('blue')
+  color=I('black')
   ) %>%
   add_trace(y=df_feux_gb_annee_surfha_nbr$surface_ha_max,
-            name="Surface max",
+            name="Surface maximum brulée",
             type="scatter",
             mode="lines+markers",
             color=I("red")) %>%
@@ -184,11 +184,11 @@ feu_par_ans <- plot_ly(
           name="Nombre d'incendies",
           type="scatter",
           mode="lines+markers",
-          color=I("green"))
+          color=I("blue"))
 
 # Je met en forme le titre du graph ainsi que les titres des axes
-feu_par_ans <- feu_par_ans %>% layout(title = "Surface totale brulée et
-                                    nombre d'incendies selon les années (ha)",
+feu_par_ans <- feu_par_ans %>% layout(title = "Surface totale et maximum brulée (ha) et
+                                    nombre d'incendies selon les années",
                                     # Met le mode "Compare data on hover" activé par défaut.
                                     hovermode='compare',
                                     legend=list(x=0.75,
@@ -201,7 +201,61 @@ feu_par_ans <- feu_par_ans %>% layout(title = "Surface totale brulée et
 
 # C'est là que je génère le rendu du graph dans le viewer en appelant la fonction graph
 # (je préfère le sauvegarder en html directement)
-feu_par_ans
+#feu_par_ans
+# Sauvegarde graph (le graphique 2D) vers le fichier feu_par_an.html dans le wd par défaut
+# (car je ne l'ai pas redéterminé)
+saveWidget(feu_par_ans, file="feu_par_an.html")
+
+# Maintenant que c'est enregistré je peux supprimer toutes les variables qui m'ont permise de générer le graph
+rm(df_feux_gb_annee_surfha_nbr)
+rm(feu_par_ans)
+
+# Je fais un group by pour regrouper les données selon un champ puis un summarise pour y associer les données
+df_feux_gb_dep_surfha_nbr <- df_feux %>% group_by(dep) %>% summarize(surface_ha_max=round(max(surface_ha)), sum_surface_ha=round(sum(surface_ha)), nbr=n())
+
+# C'est là que je met en forme le graph
+# https://plotly.com/r/line-charts/
+feu_par_dep <- plot_ly(
+  data=df_feux_gb_dep_surfha_nbr,
+  x=df_feux_gb_dep_surfha_nbr$dep,
+  y=df_feux_gb_dep_surfha_nbr$sum_surface_ha,
+  name="Surface totale brulée",
+  type="bar",
+  color=I('black')
+) %>%
+  add_trace(y=df_feux_gb_dep_surfha_nbr$surface_ha_max,
+            name="Surface maximum brulée",
+            type="bar",
+            color=I("red")) %>%
+  add_trace(y=df_feux_gb_dep_surfha_nbr$nbr,
+            name="Nombre d'incendies",
+            type="bar",
+            color=I("blue"))
+
+# Je met en forme le titre du graph ainsi que les titres des axes
+feu_par_dep <- feu_par_dep %>% layout(title = "Surface totale et maximum brulée (ha) et
+                                    nombre d'incendies selon les départements",
+                                      # Met le mode "Compare data on hover" activé par défaut.
+                                      legend=list(x=0,
+                                                  y=0.9),
+                                      xaxis=list(title="Départements"),
+                                      yaxis=list(visible=FALSE),
+                                      barmode='group',
+                                      bargap=0.15,
+                                      bargroupgap=0.1) %>% 
+  config(displayModeBar = FALSE)  # Cache les commandes du graph par défaut.
+
+# C'est là que je génère le rendu du graph dans le viewer en appelant la fonction graph
+# (je préfère le sauvegarder en html directement)
+#feu_par_dep
+
+# Sauvegarde graph (le graphique 2D) vers le fichier feu_par_an.html dans le wd par défaut
+# (car je ne l'ai pas redéterminé)
+saveWidget(feu_par_dep, file="feu_par_dep.html")
+
+# Maintenant que c'est enregistré je peux supprimer toutes les variables qui m'ont permise de générer le graph
+rm(df_feux_gb_dep_surfha_nbr)
+rm(feu_par_dep)
 
 ################
 # SURFACE PLOT #
@@ -236,19 +290,6 @@ feu_par_ans
 
 # Je génère la visualisation du graph (je l'enregistre en html plus bas)
 #feu_mois_heure
-
-##########
-# EXPORT #
-##########
-
-# Sauvegarde graph (le graphique 2D) vers le fichier feu_par_an.html dans le wd par défaut
-# (car je ne l'ai pas redéterminé)
-saveWidget(feu_par_ans, file="feu_par_an.html")
-
-# Maintenant que c'est enregistré je peux supprimer toutes les variables qui m'ont permise de générer le graph
-rm(df_feux_group)
-rm(df_feux_group_sum)
-rm(feu_par_an)
 
 # Sauvegarde le graph de surface vers feu_mois_heure.html
 saveWidget(feu_mois_heure, file="feu_mois_heure.html")
