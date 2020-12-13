@@ -169,5 +169,5 @@ rm(feu_par_dep)
 #saveWidget(feu_mois_heure, file="feu_mois_heure.html")
 
 # Maintenant que c'est enregistré je peux supprimer toutes les variables qui m'ont permise de générer le graph
-rm(df_feux_matrix)
-rm(feu_mois_heure)
+#rm(df_feux_matrix)
+#rm(feu_mois_heure)
