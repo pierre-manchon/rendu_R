@@ -1,6 +1,5 @@
 library(dplyr)
 library(plotly)
-library(quantmod)
 library(htmlwidgets)
 
 #######################
