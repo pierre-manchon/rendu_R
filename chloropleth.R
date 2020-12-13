@@ -33,7 +33,7 @@ df_com <- readOGR(dsn=getwd(), layer="COMMUNE")
 df_epci <- readOGR(dsn=getwd(), layer="EPCI")
 
 # Je lis les couches vecteurs des carroyages DFCI
-#df_dfci2 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_2X2_L93")
+df_dfci2 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_2X2_L93")
 df_dfci20 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_20X20_L93")
 
 # Je redéfinit le path du wd un dossier au dessus dans la racine pour retourner dans le dossier
@@ -155,18 +155,18 @@ rm(map)
 # TODO Je créé une fonction pour pouvoir génére des graphs basiques plus facilement
 # df_plot <- df_feux %>% group_by(annee) %>% summarize(nbr=n())
 # plot(df_plot, type="o", main="", xlab="Années", ylab="Nbr incendies")
-# il ne reconnait pas les params field comme étant le nom des champ à grouper
-to_plot<- function(df, colname="", plotting_method="o", title="title", xlab="xlab", ylab="ylab") {
-  df_plot <- df %>% group_by(x=df[colname]) %>% summarize(y=n())
-  return(plot(df, type=plotting_method, main=title, xlab=xlab, ylab=ylab))
+# ça marche mais ça n'utilise que n() en y (passer n() ou sum() en argument de la fonction
+# ne marche pas)
+to_plot<- function(df, colname="", sum="", title="title", xlab="xlab", ylab="ylab") {
+  df_plot <- df %>% group_by(df[colname]) %>% summarize(n())
+  return(plot(df_plot, type="o", main=title, xlab=xlab, ylab=ylab))
 }
 
 to_plot(df=df_feux,
              colname="annee",
-             plotting_method="o",
-             title="Test title",
-             xlab="Test XLAB",
-             ylab="Test YLAB")
+             title="Nombre d'incendies selon les années",
+             xlab="Années",
+             ylab="Nombre d'incendies")
 
 # Je fais un group by pour regrouper les données selon un champ puis un summarise pour y associer les données
 df_feux_gb_annee_surfha_nbr <- df_feux %>% group_by(annee) %>% summarize(surface_ha_max=round(max(surface_ha)), sum_surface_ha=round(sum(surface_ha)), nbr=n())
