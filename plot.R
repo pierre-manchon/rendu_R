@@ -20,22 +20,6 @@ setwd("..")
 # GRAPH 2D #
 ###########
 
-# TODO Je créé une fonction pour pouvoir génére des graphs basiques plus facilement
-# df_plot <- df_feux %>% group_by(annee) %>% summarize(nbr=n())
-# plot(df_plot, type="o", main="", xlab="Années", ylab="Nbr incendies")
-# ça marche mais ça n'utilise que n() en y (passer n() ou sum() en argument de la fonction
-# ne marche pas)
-to_plot<- function(df, colname="", sum="", title="title", xlab="xlab", ylab="ylab") {
-  df_plot <- df %>% group_by(df[colname]) %>% summarize(n())
-  return(plot(df_plot, type="o", main=title, xlab=xlab, ylab=ylab))
-}
-
-to_plot(df=df_feux,
-        colname="annee",
-        title="Nombre d'incendies selon les années",
-        xlab="Années",
-        ylab="Nombre d'incendies")
-
 # Je fais un group by pour regrouper les données selon un champ puis un summarise pour y associer les données
 df_feux_gb_annee_surfha_nbr <- df_feux %>% group_by(annee) %>% summarize(surface_ha_max=round(max(surface_ha)), sum_surface_ha=round(sum(surface_ha)), nbr=n())
 
@@ -131,9 +115,35 @@ saveWidget(feu_par_dep, file="feu_par_dep.html")
 rm(df_feux_gb_dep_surfha_nbr)
 rm(feu_par_dep)
 
-################
-# SURFACE PLOT #
-################
+##########
+# TESTS #
+#########
+
+# GRAPH 2D
+
+# TODO Je créé une fonction pour pouvoir génére des graphs basiques plus facilement
+# df_plot <- df_feux %>% group_by(annee) %>% summarize(nbr=n())
+# plot(df_plot, type="o", main="", xlab="Années", ylab="Nbr incendies")
+# ça marche mais ça n'utilise que n() en y (passer n() ou sum() en argument de la fonction
+# ne marche pas)
+to_plot<- function(df, colname="", sum="", title="title", xlab="xlab", ylab="ylab") {
+  df_plot <- df %>% group_by(df[colname]) %>% summarize(n())
+  return(plot(df_plot, type="o", main=title, xlab=xlab, ylab=ylab))
+}
+
+to_plot(df=df_feux,
+        colname="annee",
+        title="Nombre d'incendies selon les années",
+        xlab="Années",
+        ylab="Nombre d'incendies")
+
+to_plot(df=df_feux,
+        colname="dep",
+        title="Nombre d'incendies selon les départements",
+        xlab="Départements",
+        ylab="Nombre d'incendies")
+
+# SURFACE PLOT
 
 # j'extrait les données que je veux mettre en forme dans le surface plot grâce à un group_by
 # puis je continue de les mettre en forme en faisant la somme des surfaces puis je change l'ordre
