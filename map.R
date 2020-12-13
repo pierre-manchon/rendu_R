@@ -35,6 +35,49 @@ df_dfci20 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_20X20_L93")
 # principal du projet.
 setwd("..")
 
+############################
+# PREPARATION DE LA DONNEE #
+############################
+
+#here we subset a part of shapefile on a base of a certain attribute specify the name of shape file dollar sign then the attribute 
+part = l[l$ECO_CODE == "IM0202",]
+
+plot(part)
+#show axes(long , lat)  color and name 
+plot(l,axes=TRUE, col="green",main="Laos Ecoregions")
+
+plot(l,axes=TRUE, col="red",border="blue")
+title(main="Laos Ecoregions")
+
+###use spplot for plotting numerical Attribute- AREA
+# needs sp package (imported alongside raster)
+spplot(l, "AREA", main = "Area of Different Ecoregions", sub = "Average Area", col = "transparent")
+
+#color palette
+
+library(RColorBrewer)
+display.brewer.all()
+
+my.palette <- brewer.pal(n = 8, name = "Blues") #color selection no.8 #of blues
+spplot(l, "AREA", col.regions = my.palette, cuts = 6, col = "transparent") #6 shades of blue
+
+#display quantiles for color breaks
+library(classInt)
+my.palette2 <- brewer.pal(n = 8, name = "YlOrRd")
+
+breaks.qt <- classIntervals(l$AREA, n = 6, style = "quantile", intervalClosure = "right")
+
+spplot(l, "AREA", col = "transparent", col.regions = my.palette2, 
+       at = breaks.qt$brks)
+
+#Country mapping
+world=readOGR(dsn=getwd(), layer="countries")
+library(RColorBrewer)
+world$UNREG1 <- as.factor(iconv(as.character(world$UNREG1), "latin1", "UTF-8"))  # avoid the problems with 'tildes' 
+
+spplot(world, "UNREG1",main="World Poltical Boundaries", col.regions = colorRampPalette(brewer.pal(12, "Set3"))(18), 
+       col = "white")  # Plot the 'unreg1' form the 'world' object.
+
 #########
 # CARTE #
 #########
@@ -124,10 +167,10 @@ map <- leaflet() %>%
   # TODO raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
   # écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problème
   leaflet::addLegend(map, values="a", pal=palette_feux, position="bottomright")
-  addLegend(pal=palette_feux, values=df_feux_communes$surface_ha, opacity=0.9, title="Surface brulée (ha)", position="bottomleft")
+  #addLegend(pal=palette_feux, values=df_feux_communes$surface_ha, opacity=0.9, title="Surface brulée (ha)", position="bottomleft")
 
 # Créé litéralement la carte en executant la fonction leaflet derrière
-# C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
+# C'est là que je génèrele rendu de la carte dans le viewer en appelant la fonction map
 # (je préfère la sauvegarder en html directement à la fin du script)
 #map
 
