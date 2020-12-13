@@ -1,9 +1,8 @@
 library(dplyr)
 library(rgdal)
-library(plotly)
 library(leaflet)
-library(htmltools)
 library(quantmod)
+library(htmltools)
 library(htmlwidgets)
 library(RColorBrewer)
 
