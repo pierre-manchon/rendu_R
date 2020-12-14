@@ -71,7 +71,7 @@ df_feux_gb_dfci2 <- df_feux %>% group_by(code_DFCI) %>% summarize(surface_ha=sum
 
 # Je fait une jointure du shapefile du carroyage DFCI à 2km et des donnees promethees de feux que j'ai
 # regroupé juste au dessus en utilisant les champs du code DFCI
-df_feux_dfci2 = ddf_dfci2 %>%
+df_feux_dfci2 = df_dfci2 %>%
   merge(
     x=df_dfci2,
     y=df_feux_gb_dfci2,
@@ -87,7 +87,7 @@ rm(df_feux_gb_dfci2)
 # Je supprime les carreaux DFCI qui ne comportent pas de feux (ceux qui n'ont pas de valeur dans le champ nbr_feux)
 df_feux_dfci2 = subset(df_feux_dfci2, df_feux_dfci2@data$nbr_feux != "")
 
-# DFCI2
+# DFCI20
 
 # Je fais un group by pour regrouper les données selon le champ code_DFCI puis un summarise pour y associer
 # les données de surface brulée ainsi que de nombre de feux
@@ -133,11 +133,11 @@ bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
 
 # Définition de la symbologie graphique selon un champ
 palette_feux_com <- colorBin("YlOrRd",
-                             domain=df_feux_com$surface_ha,
+                             domain=df_feux_com@data$surface_ha,
                              bins=bins)
 
 palette_feux_dfci2 <- colorBin("YlOrRd",
-                             domain=df_feux_dfci2$surface_ha,
+                             domain=df_feux_dfci2@data$surface_ha,
                              bins=bins)
 
 # Définition du format des popups
@@ -146,8 +146,8 @@ popup_feux_com <- paste("Commune:", df_feux_com@data$NOM_COM_M, "<br/>",
                     sep="") %>%
   lapply(htmltools::HTML)
 
-popup_feux_dfci <- paste("Carreau DFCI:", df_feux_dfci2@data$NOM, "<br/>",
-                        "Surface brulée: ", round(df_feux_com$surface_ha, 2), "ha",
+popup_feux_dfci2 <- paste("Carreau DFCI:", df_feux_dfci2@data$NOM, "<br/>",
+                        "Surface brulée: ", round(df_feux_dfci2@data$surface_ha, 2), "ha",
                         sep="") %>%
   lapply(htmltools::HTML)
 
@@ -165,7 +165,7 @@ legend_feux <- paste("Région: ", df_reg$NOM_REG,"<br/>",
 # Je créé ma carte leaflet de base avec
 map <- leaflet() %>%
   # Localisation de base de la carte lorsqu'elle est initialisée
-  setView(5, 50, 6) %>%
+  setView(5, 45, 6) %>%
   
   # Ajout des fonds de cartes: group correspond au nom que l'on veut donner au fond de carte
   # (C'est ce nom que l'on va encapsuler dans un groupe du LayersControl et qui apparaîtra dans
@@ -182,17 +182,14 @@ map <- leaflet() %>%
   #addPolygons(data=df_com, fill=FALSE, weight=0.25, color="#000", group="Communes") %>%
   
   # AJout des données de feux
-  # Ajout de la légende
-  # raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
-  # écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problème
-  
+
   # Ajout des données de feux selon les communes
   addPolygons(
     data=df_feux_com,
     fillColor=palette_feux_com(df_feux_com$surface_ha),
     stroke=TRUE,
     fillOpacity = 0.9,
-    color="white",
+    color="black",
     group="Surface brulée par communes",
     weight=0.3,
     label=popup_feux_com,
@@ -201,19 +198,14 @@ map <- leaflet() %>%
       textsize="13px", 
       direction="auto"
     )) %>%
-  leaflet::addLegend(map,
-                     values="a",
-                     group="Surface brulée par communes",
-                     pal=palette_feux_com,
-                     position="bottomright") %>%
-  
+
   # Ajout des données DFCI à 2km
   addPolygons(
     data=df_feux_dfci2,
     fillColor=palette_feux_dfci2(df_feux_dfci2$surface_ha),
     stroke=TRUE,
     fillOpacity = 0.9,
-    color="white",
+    color="black",
     group="Surface brulée par carreau DFCI de 2km",
     weight=0.3,
     label=popup_feux_dfci,
@@ -222,16 +214,11 @@ map <- leaflet() %>%
       textsize="13px", 
       direction="auto"
     )) %>%
-  leaflet::addLegend(map,
-                     values="a",
-                     group="Surface brulée par carreau DFCI de 2km",
-                     pal=palette_feux_dfci2,
-                     position="bottomright") %>%
-  
+
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
     baseGroups=c("OSM (default)", "CartoDB"),
-    overlayGroups=c("Régions", "Départements", "EPCI", "Communes", "Surface brulée par communes", "Surface brulée par carreau DFCI de 2km"),
+    overlayGroups=c("Régions", "Départements", "EPCI", "Surface brulée par communes", "Surface brulée par carreau DFCI de 2km"),
     options=layersControlOptions(collapsed=TRUE)) %>%
   # Je définit quelles couches sont cachées par défaut
   # Ca aide à ce que la carte charge plus vite.
@@ -243,11 +230,24 @@ map <- leaflet() %>%
   # Ajout tout simple de la barre d'échelle
   addScaleBar(position="bottomleft")
 
+# Ajout de la légende
+# raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
+# écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problème
+leaflet::addLegend(map,
+                   values="a",
+                   group="Surface brulée par communes",
+                   pal=palette_feux_com,
+                   position="bottomright")
+leaflet::addLegend(map,
+                   values="a",
+                   group="Surface brulée par carreau DFCI de 2km",
+                   pal=palette_feux_dfci2,
+                   position="bottomright")
+  
 # Créé litéralement la carte en executant la fonction leaflet derrière
 # C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
 # (je préfère la sauvegarder en html directement à la fin du script)
 #map
-
 # Sauvegarde map (la cartographie) vers le fichier map.html dans le wd par défaut
 # TODO ça crash...
 #saveWidget(map, file="map.html")
