@@ -184,46 +184,34 @@ map <- leaflet() %>%
   # Ajout des données de feux selon les communes
   addPolygons(
     data=df_feux_com,
-    fillColor=palette_feux_com(df_feux_com$surface_ha),
-    stroke=TRUE,
+    fillColor=palette_feux_com(df_feux_com@data$surface_ha),
     fillOpacity = 0.9,
-    color="black",
-    group="Surface brulée par communes",
+    group="COM",
     weight=0.3,
-    label=popup_feux_com,
-    labelOptions=labelOptions( 
-      style=list("font-weight"="normal", padding="3px 8px"), 
-      textsize="13px", 
-      direction="auto"
-    )) %>%
+    label=popup_feux_com) %>%
 
   # Ajout des données DFCI à 2km
   addPolygons(
     data=df_feux_dfci2,
-    fillColor=palette_feux_dfci2(df_feux_dfci2$surface_ha),
-    stroke=TRUE,
+    fillColor=palette_feux_dfci2(df_feux_dfci2@data$surface_ha),
     fillOpacity = 0.9,
-    color="black",
-    group="Surface brulée par carreau DFCI de 2km",
+    group="DFCI2",
     weight=0.3,
-    label=popup_feux_dfci2,
-    labelOptions=labelOptions( 
-      style=list("font-weight"="normal", padding="3px 8px"), 
-      textsize="13px", 
-      direction="auto"
-    )) %>%
+    label=popup_feux_dfci2) %>%
 
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
     baseGroups=c("OSM (default)", "CartoDB"),
-    overlayGroups=c("Régions", "Départements", "EPCI", "Surface brulée par communes", "Surface brulée par carreau DFCI de 2km"),
+    overlayGroups=c("Régions", "Départements", "EPCI", "COM", "DFCI2"),
     options=layersControlOptions(collapsed=TRUE)) %>%
   # Je définit quelles couches sont cachées par défaut
   # Ca aide à ce que la carte charge plus vite.
   hideGroup("EPCI") %>%
   hideGroup("Communes") %>%
-  hideGroup("Surface brulée par communes") %>%
-  hideGroup("Surface brulée par carreau DFCI de 2km") %>%
+  hideGroup("COM") %>%
+  hideGroup("DFCI2") %>%
+  #Surface brulée par communes
+  #Surface brulée par carreau DFCI de 2km
   
   # Ajout tout simple de la barre d'échelle
   addScaleBar(position="bottomleft")
@@ -231,21 +219,23 @@ map <- leaflet() %>%
 # Ajout de la légende
 # raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
 # écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problème
+
+# n'est pas executé
+leaflet:addLegend(map,
+                  values=df_feux_com,
+                  group="Surface brulée par communes",
+                  pal=palette_feux_com,
+                  position="bottomleft")
 leaflet::addLegend(map,
-                   values="a",
-                   group="Surface brulée par communes",
-                   pal=palette_feux_com,
-                   position="bottomright")
-leaflet::addLegend(map,
-                   values="a",
+                   values=df_feux_dfci2,
                    group="Surface brulée par carreau DFCI de 2km",
                    pal=palette_feux_dfci2,
-                   position="bottomright")
+                   position="bottomleft")
   
 # Créé litéralement la carte en executant la fonction leaflet derrière
 # C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
 # (je préfère la sauvegarder en html directement à la fin du script)
-#map
+map
 # Sauvegarde map (la cartographie) vers le fichier map.html dans le wd par défaut
 # TODO ça crash...
 #saveWidget(map, file="map.html")
