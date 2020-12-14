@@ -132,8 +132,8 @@ df_feux_dfci20 = subset(df_feux_dfci20, df_feux_dfci20@data$nbr_feux != "")
 bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
 
 # Définition du format des popups
-popup_feux <- paste("Commune:", df_feux_com$NOM_COM, "<br/>",
-                    "Aire brulée: ", round(df_feux_com$surface_ha, 2),
+popup_feux <- paste("Commune:", df_feux_com@, "<br/>",
+                    "Surface brulée: ", round(df_feux_com$surface_ha, 2), "ha",
                     sep="") %>%
   lapply(htmltools::HTML)
 
