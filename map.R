@@ -39,42 +39,64 @@ setwd("..")
 # PREPARATION DE LA DONNEE #
 ############################
 
-#here we subset a part of shapefile on a base of a certain attribute specify the name of shape file dollar sign then the attribute 
-part = l[l$ECO_CODE == "IM0202",]
+# Communes
 
-plot(part)
-#show axes(long , lat)  color and name 
-plot(l,axes=TRUE, col="green",main="Laos Ecoregions")
+# je fait une jointure du shapefile et des donnees promethees sur les champs du code insee
+df_feux_com = df_com %>%
+  merge(
+    x=df_com,
+    y=df_feux,
+    by.x="INSEE_COM",
+    by.y="code_INSEE",
+    duplicateGeoms=TRUE
+  )
 
-plot(l,axes=TRUE, col="red",border="blue")
-title(main="Laos Ecoregions")
+#df_feux_com <- subset(df_feux_com, df_feux_com$surf_parcourue_m2 != 0)
+#part = df_feux_com@data[df_feux_com@data$dep == "13",]
+df_feux_com = subset(df_feux_com, df_feux_com@data$type_feu == "0")
 
-###use spplot for plotting numerical Attribute- AREA
-# needs sp package (imported alongside raster)
-spplot(l, "AREA", main = "Area of Different Ecoregions", sub = "Average Area", col = "transparent")
+# DFCI2
 
-#color palette
+# je fait une jointure du shapefile et des donnees promethees sur les champs du code insee
+df_feux_dfci2 = df_dfci2 %>%
+  merge(
+    x=df_dfci2,
+    y=df_feux,
+    by.x="NOM",
+    by.y="code_DFCI",
+    duplicateGeoms=TRUE
+  )
 
-library(RColorBrewer)
-display.brewer.all()
+#df_feux_com <- subset(df_feux_com, df_feux_com$surf_parcourue_m2 != 0)
+#part = df_feux_com@data[df_feux_com@data$dep == "13",]
+df_feux_dfci2 = subset(df_feux_dfci2, df_feux_dfci2@data$type_feu == "0")
 
+# DFCI20
+
+# je fait une jointure du shapefile et des donnees promethees sur les champs du code insee
+df_feux_dfci20 = df_dfci20 %>%
+  merge(
+    x=df_dfci20,
+    y=df_feux,
+    by.x="NOM",
+    by.y="code_DFCI",
+    duplicateGeoms=TRUE
+  )
+
+#df_feux_com <- subset(df_feux_com, df_feux_com$surf_parcourue_m2 != 0)
+#part = df_feux_com@data[df_feux_com@data$dep == "13",]
+df_feux_dfci20 = subset(df_feux_dfci20, df_feux_dfci20@data$type_feu == "0")
+
+spplot(y, "surface_ha", main = "Area of Different Ecoregions", sub = "Average Area", col = "transparent")
 my.palette <- brewer.pal(n = 8, name = "Blues") #color selection no.8 #of blues
 spplot(l, "AREA", col.regions = my.palette, cuts = 6, col = "transparent") #6 shades of blue
-
-#display quantiles for color breaks
 library(classInt)
 my.palette2 <- brewer.pal(n = 8, name = "YlOrRd")
-
 breaks.qt <- classIntervals(l$AREA, n = 6, style = "quantile", intervalClosure = "right")
-
 spplot(l, "AREA", col = "transparent", col.regions = my.palette2, 
        at = breaks.qt$brks)
-
-#Country mapping
 world=readOGR(dsn=getwd(), layer="countries")
-library(RColorBrewer)
 world$UNREG1 <- as.factor(iconv(as.character(world$UNREG1), "latin1", "UTF-8"))  # avoid the problems with 'tildes' 
-
 spplot(world, "UNREG1",main="World Poltical Boundaries", col.regions = colorRampPalette(brewer.pal(12, "Set3"))(18), 
        col = "white")  # Plot the 'unreg1' form the 'world' object.
 
@@ -82,27 +104,17 @@ spplot(world, "UNREG1",main="World Poltical Boundaries", col.regions = colorRamp
 # CARTE #
 #########
 
-# je fait une jointure du shapefile et des donnees promethees sur les champs du code insee
-df_feux_communes = df_com %>%
-  merge(
-    x=df_com,
-    y=df_feux,
-    by.x="INSEE_COM",
-    by.y="code_INSEE",
-    duplicateGeoms=TRUE
-    )
-
 # Définition des écarts de valeurs dans la symologie
 bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
 
 # Définition de la symbologie graphique selon un champ
 palette_feux <- colorBin("YlOrRd",
-                    domain=df_feux_communes$surface_ha,
+                    domain=df_feux_com$surface_ha,
                     bins=bins)
 
 # Définition du format des popups
-popup_feux <- paste("Commune:", df_feux_communes$NOM_COM, "<br/>",
-                    "Aire brulée: ", round(df_feux_communes$surface_ha, 2),
+popup_feux <- paste("Commune:", df_feux_com$NOM_COM, "<br/>",
+                    "Aire brulée: ", round(df_feux_com$surface_ha, 2),
                     sep="") %>%
   lapply(htmltools::HTML)
 
@@ -135,12 +147,28 @@ map <- leaflet() %>%
   addPolygons(data=df_epci, fill=FALSE, weight=0.5, color="#000", group="EPCI") %>%
   addPolygons(data=df_com, fill=FALSE, weight=0.25, color="#000", group="Communes") %>%
   
+  # Ajout des couches de données
   addPolygons(
-    data=df_feux_communes,
-    fillColor=palette_feux(df_feux_communes$surface_ha),
+    data=df_feux_com,
+    fillColor=palette_feux(df_feux_com$surface_ha),
     stroke=TRUE,
     fillOpacity = 0.9,
     color="white",
+    group="FEUXCOM",
+    weight=0.3,
+    label=popup_feux,
+    labelOptions=labelOptions( 
+      style=list("font-weight"="normal", padding="3px 8px"), 
+      textsize="13px", 
+      direction="auto"
+    )) %>%
+  addPolygons(
+    data=df_feux_dfci2,
+    fillColor=palette_feux(df_feux_dfci2$surface_ha),
+    stroke=TRUE,
+    fillOpacity = 0.9,
+    color="white",
+    group="FEUXDFCI2",
     weight=0.3,
     label=popup_feux,
     labelOptions=labelOptions( 
@@ -156,12 +184,14 @@ map <- leaflet() %>%
     options=layersControlOptions(collapsed=TRUE)) %>%
   # Je définit quelles couches sont cachées par défaut
   # Ca aide à ce que la carte charge plus vite.
+  hideGroup("FEUXCOM") %>%
+  hideGroup("FEUXDFCI2") %>%
   hideGroup("EPCI") %>%
   hideGroup("Communes") %>%
   hideGroup("Feux") %>%
   
   # Ajout tout simple de la barre d'échelle
-  addScaleBar(position="bottomleft") %>%
+  addScaleBar(position="bottomleft")
   
   # Ajout de la légende
   # TODO raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
@@ -170,7 +200,7 @@ map <- leaflet() %>%
   #addLegend(pal=palette_feux, values=df_feux_communes$surface_ha, opacity=0.9, title="Surface brulée (ha)", position="bottomleft")
 
 # Créé litéralement la carte en executant la fonction leaflet derrière
-# C'est là que je génèrele rendu de la carte dans le viewer en appelant la fonction map
+# C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
 # (je préfère la sauvegarder en html directement à la fin du script)
 #map
 
