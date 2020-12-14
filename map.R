@@ -41,30 +41,36 @@ setwd("..")
 
 # Communes
 
-# Je fais un group by pour regrouper les données selon un champ puis un summarise pour y associer les données
+# Je fais un group by pour regrouper les données selon le champ code_INSEE puis un summarise pour y associer
+# les données de surface brulée ainsi que de nombre de feux
 df_feux_gb_com <- df_feux %>% group_by(code_INSEE) %>% summarize(surface_ha=sum(surface_ha), nbr_feux=n())
 
-# Je fait une jointure du shapefile et des donnees promethees sur les champs du code insee
+# Je fait une jointure du shapefile des communes et des donnees promethees de feux que j'ai regroupé
+# juste au dessus en utilisant les champs du code insee
 df_feux_com = df_com %>%
   merge(
     x=df_com,
     y=df_feux_gb_com,
     by.x="INSEE_COM",
-    by.y="code_INSEE",
-    duplicateGeoms=TRUE
+    by.y="code_INSEE"
   )
 
+# Je supprime le dataframe df_feux_gb_com car je n'en ai plus besoin (les données sont intégrées dans le
+# dataframe df_feux_com)
 rm(df_feux_gb_com)
-# Je supprime les communes qui ne comportent pas de feux
+
+# Je supprime les communes qui ne comportent pas de feux (celles qui n'ont pas de valeur dans le champ nbr_feux)
 #df_feux_com <- subset(df_feux_com, df_feux_com$surf_parcourue_m2 != 0)
 df_feux_com = subset(df_feux_com, df_feux_com@data$nbr_feux != "")
 
 # DFCI2
 
-# Je fais un group by pour regrouper les données selon un champ puis un summarise pour y associer les données
+# Je fais un group by pour regrouper les données selon le champ code_DFCI puis un summarise pour y associer
+# les données de surface brulée ainsi que de nombre de feux
 df_feux_gb_dfci2 <- df_feux %>% group_by(code_DFCI) %>% summarize(surface_ha=sum(surface_ha), nbr_feux=n())
 
-# Je fait une jointure du shapefile et des donnees promethees sur les champs du code insee
+# Je fait une jointure du shapefile du carroyage DFCI à 2km et des donnees promethees de feux que j'ai
+# regroupé juste au dessus en utilisant les champs du code DFCI
 df_feux_dfci2 = ddf_dfci2 %>%
   merge(
     x=df_dfci2,
@@ -74,17 +80,21 @@ df_feux_dfci2 = ddf_dfci2 %>%
     duplicateGeoms=TRUE
   )
 
+# Je supprime le dataframe df_feux_gb_dfci2 car je n'en ai plus besoin (les données sont intégrées dans le
+# dataframe df_feux_dfci2)
 rm(df_feux_gb_dfci2)
-# Je supprime les communes qui ne comportent pas de feux
-#df_feux_com <- subset(df_feux_com, df_feux_com$surf_parcourue_m2 != 0)
+
+# Je supprime les carreaux DFCI qui ne comportent pas de feux (ceux qui n'ont pas de valeur dans le champ nbr_feux)
 df_feux_dfci2 = subset(df_feux_dfci2, df_feux_dfci2@data$nbr_feux != "")
 
 # DFCI2
 
-# Je fais un group by pour regrouper les données selon un champ puis un summarise pour y associer les données
+# Je fais un group by pour regrouper les données selon le champ code_DFCI puis un summarise pour y associer
+# les données de surface brulée ainsi que de nombre de feux
 df_feux_gb_dfci20 <- df_feux %>% group_by(code_DFCI) %>% summarize(surface_ha=sum(surface_ha), nbr_feux=n())
 
-# Je fait une jointure du shapefile et des donnees promethees sur les champs du code insee
+# Je fait une jointure du shapefile du carroyage DFCI à 20km et des donnees promethees de feux que j'ai
+# regroupé juste au dessus en utilisant les champs du code DFCI
 df_feux_dfci20 = ddf_dfci20 %>%
   merge(
     x=df_dfci20,
@@ -94,9 +104,11 @@ df_feux_dfci20 = ddf_dfci20 %>%
     duplicateGeoms=TRUE
   )
 
+# Je supprime le dataframe df_feux_gb_dfci20 car je n'en ai plus besoin (les données sont intégrées dans le
+# dataframe df_feux_dfci20)
 rm(df_feux_gb_dfci20)
-# Je supprime les communes qui ne comportent pas de feux
-#df_feux_com <- subset(df_feux_com, df_feux_com$surf_parcourue_m2 != 0)
+
+# Je supprime les carreaux DFCI qui ne comportent pas de feux (ceux qui n'ont pas de valeur dans le champ nbr_feux)
 df_feux_dfci20 = subset(df_feux_dfci20, df_feux_dfci20@data$nbr_feux != "")
 
 #spplot(y, "surface_ha", main = "Area of Different Ecoregions", sub = "Average Area", col = "transparent")
@@ -118,11 +130,6 @@ df_feux_dfci20 = subset(df_feux_dfci20, df_feux_dfci20@data$nbr_feux != "")
 
 # Définition des écarts de valeurs dans la symologie
 bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
-
-# Définition de la symbologie graphique selon un champ
-palette_feux <- colorBin("YlOrRd",
-                    domain=df_feux_com$surface_ha,
-                    bins=bins)
 
 # Définition du format des popups
 popup_feux <- paste("Commune:", df_feux_com$NOM_COM, "<br/>",
@@ -156,17 +163,17 @@ map <- leaflet() %>%
   # pour faire des graduations)
   addPolygons(data=df_reg, fill=FALSE, weight=2, color="#000", group="Régions") %>%
   addPolygons(data=df_dep, fill=FALSE, weight=1, color="#000", group="Départements") %>%
-#  addPolygons(data=df_epci, fill=FALSE, weight=0.5, color="#000", group="EPCI") %>%
-#  addPolygons(data=df_com, fill=FALSE, weight=0.25, color="#000", group="Communes") %>%
+  addPolygons(data=df_epci, fill=FALSE, weight=0.5, color="#000", group="EPCI") %>%
+  addPolygons(data=df_com, fill=FALSE, weight=0.25, color="#000", group="Communes") %>%
   
   # Ajout des couches de données
   addPolygons(
     data=df_feux_com,
-    fillColor=palette_feux(df_feux_com$surface_ha),
+    fillColor= colorBin("YlOrRd", domain=df_feux_com$surface_ha, bins=bins), # Définition de la symbologie graphique selon un champ
     stroke=TRUE,
     fillOpacity = 0.9,
     color="white",
-    group="FEUXCOM",
+    group="Surface brulée par communes",
     weight=0.3,
     label=popup_feux,
     labelOptions=labelOptions( 
@@ -176,11 +183,11 @@ map <- leaflet() %>%
     )) %>%
   addPolygons(
     data=df_feux_dfci2,
-    fillColor=palette_feux(df_feux_dfci2$surface_ha),
+    fillColor= colorBin("YlOrRd", domain=df_feux_dfci2$surface_ha, bins=bins), # Définition de la symbologie graphique selon un champ
     stroke=TRUE,
     fillOpacity = 0.9,
     color="white",
-    group="FEUXDFCI2",
+    group="Surface brulée par carreau DFCI de 2km",
     weight=0.3,
     label=popup_feux,
     labelOptions=labelOptions( 
@@ -192,12 +199,12 @@ map <- leaflet() %>%
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
     baseGroups=c("OSM (default)", "CartoDB"),
-    overlayGroups=c("Régions", "Départements", "FEUXCOM", "FEUXDFCI2"),
+    overlayGroups=c("Régions", "Départements", "EPCI", "Communes", "Surface brulée par communes", "Surface brulée par carreau DFCI de 2km"),
     options=layersControlOptions(collapsed=TRUE)) %>%
   # Je définit quelles couches sont cachées par défaut
   # Ca aide à ce que la carte charge plus vite.
-  hideGroup("FEUXCOM") %>%
-  hideGroup("FEUXDFCI2") %>%
+  hideGroup("Surface brulée par communes") %>%
+  hideGroup("Surface brulée par carreau DFCI de 2km") %>%
 #  hideGroup("EPCI") %>%
 #  hideGroup("Communes") %>%
   
@@ -216,9 +223,8 @@ map <- leaflet() %>%
 #map
 
 # Sauvegarde map (la cartographie) vers le fichier map.html dans le wd par défaut
-# (car je ne l'ai pas redéterminé)
 # TODO ça crash...
-saveWidget(map, file="map.html")
+#saveWidget(map, file="map.html")
 
 # Maintenant que c'est enregistré je peux supprimer toutes les variables qui m'ont permise de générer le graph
 rm(map)
