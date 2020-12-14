@@ -131,8 +131,17 @@ df_feux_dfci20 = subset(df_feux_dfci20, df_feux_dfci20@data$nbr_feux != "")
 # Définition des écarts de valeurs dans la symologie
 bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
 
+# Définition de la symbologie graphique selon un champ
+palette_feux_com <- colorBin("YlOrRd",
+                             domain=df_feux_com$surface_ha,
+                             bins=bins)
+
+palette_feux_dfci2 <- colorBin("YlOrRd",
+                             domain=df_feux_dfci2$surface_ha,
+                             bins=bins)
+
 # Définition du format des popups
-popup_feux <- paste("Commune:", df_feux_com@, "<br/>",
+popup_feux <- paste("Commune:", df_feux_com@data$NOM_COM_M, "<br/>",
                     "Surface brulée: ", round(df_feux_com$surface_ha, 2), "ha",
                     sep="") %>%
   lapply(htmltools::HTML)
@@ -140,6 +149,7 @@ popup_feux <- paste("Commune:", df_feux_com@, "<br/>",
 # Définition du format de la légende
 # De l'aide sur le formattage di sprintf
 # https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/sprintf
+
 legend_feux <- paste("Région: ", df_reg$NOM_REG,"<br/>",
                     "Département: ", df_dep$NOM_DEP, "<br/>",
                     "EPCI: ", df_epci$NOM_EPCI, "<br/>",
@@ -166,10 +176,15 @@ map <- leaflet() %>%
   addPolygons(data=df_epci, fill=FALSE, weight=0.5, color="#000", group="EPCI") %>%
   addPolygons(data=df_com, fill=FALSE, weight=0.25, color="#000", group="Communes") %>%
   
-  # Ajout des couches de données
+  # AJout des données de feux
+  # Ajout de la légende
+  # raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
+  # écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problème
+  
+  # Ajout des données de feux selon les communes
   addPolygons(
     data=df_feux_com,
-    fillColor= colorBin("YlOrRd", domain=df_feux_com$surface_ha, bins=bins), # Définition de la symbologie graphique selon un champ
+    fillColor=palette_feux_com(df_feux_com$surface_ha),
     stroke=TRUE,
     fillOpacity = 0.9,
     color="white",
@@ -181,9 +196,16 @@ map <- leaflet() %>%
       textsize="13px", 
       direction="auto"
     )) %>%
+  leaflet::addLegend(map,
+                     values="a",
+                     group="Surface brulée par communes",
+                     pal=palette_feux_com,
+                     position="bottomright") %>%
+  
+  # Ajout des données DFCI à 2km
   addPolygons(
     data=df_feux_dfci2,
-    fillColor= colorBin("YlOrRd", domain=df_feux_dfci2$surface_ha, bins=bins), # Définition de la symbologie graphique selon un champ
+    fillColor=palette_feux_dfci2(df_feux_dfci2$surface_ha),
     stroke=TRUE,
     fillOpacity = 0.9,
     color="white",
@@ -195,6 +217,11 @@ map <- leaflet() %>%
       textsize="13px", 
       direction="auto"
     )) %>%
+  leaflet::addLegend(map,
+                     values="a",
+                     group="Surface brulée par carreau DFCI de 2km",
+                     pal=palette_feux_dfci2,
+                     position="bottomright") %>%
   
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
@@ -203,19 +230,13 @@ map <- leaflet() %>%
     options=layersControlOptions(collapsed=TRUE)) %>%
   # Je définit quelles couches sont cachées par défaut
   # Ca aide à ce que la carte charge plus vite.
+  hideGroup("EPCI") %>%
+  hideGroup("Communes") %>%
   hideGroup("Surface brulée par communes") %>%
   hideGroup("Surface brulée par carreau DFCI de 2km") %>%
-#  hideGroup("EPCI") %>%
-#  hideGroup("Communes") %>%
   
   # Ajout tout simple de la barre d'échelle
   addScaleBar(position="bottomleft")
-  
-  # Ajout de la légende
-  # TODO raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
-  # écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problème
-  leaflet::addLegend(map, values="a", pal=palette_feux, position="bottomright")
-  #addLegend(pal=palette_feux, values=df_feux_communes$surface_ha, opacity=0.9, title="Surface brulée (ha)", position="bottomleft")
 
 # Créé litéralement la carte en executant la fonction leaflet derrière
 # C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
@@ -227,4 +248,4 @@ map <- leaflet() %>%
 #saveWidget(map, file="map.html")
 
 # Maintenant que c'est enregistré je peux supprimer toutes les variables qui m'ont permise de générer le graph
-rm(map)
+#rm(map)
