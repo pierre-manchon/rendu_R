@@ -76,8 +76,7 @@ df_feux_dfci2 = df_dfci2 %>%
     x=df_dfci2,
     y=df_feux_gb_dfci2,
     by.x="NOM",
-    by.y="code_DFCI",
-    duplicateGeoms=TRUE
+    by.y="code_DFCI"
   )
 
 # Je supprime le dataframe df_feux_gb_dfci2 car je n'en ai plus besoin (les données sont intégrées dans le
@@ -100,8 +99,7 @@ df_feux_dfci20 = ddf_dfci20 %>%
     x=df_dfci20,
     y=df_feux_gb_dfci20,
     by.x="NOM",
-    by.y="code_DFCI",
-    duplicateGeoms=TRUE
+    by.y="code_DFCI"
   )
 
 # Je supprime le dataframe df_feux_gb_dfci20 car je n'en ai plus besoin (les données sont intégrées dans le
@@ -208,7 +206,7 @@ map <- leaflet() %>%
     color="black",
     group="Surface brulée par carreau DFCI de 2km",
     weight=0.3,
-    label=popup_feux_dfci,
+    label=popup_feux_dfci2,
     labelOptions=labelOptions( 
       style=list("font-weight"="normal", padding="3px 8px"), 
       textsize="13px", 
