@@ -28,8 +28,8 @@ df_com <- readOGR(dsn=getwd(), layer="COMMUNE")
 df_epci <- readOGR(dsn=getwd(), layer="EPCI")
 
 # Je lis les couches vecteurs des carroyages DFCI
-df_dfci2 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_2X2_L93")
-df_dfci20 <- readOGR(dsn=getwd(), layer="CARRO_DFCI_20X20_L93")
+df_dfci2 <- readOGR(dsn=getwd(), layer="DFCI2")
+df_dfci20 <- readOGR(dsn=getwd(), layer="DFCI20")
 
 # Je redéfinit le path du wd un dossier au dessus dans la racine pour retourner dans le dossier
 # principal du projet.
