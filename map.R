@@ -192,7 +192,7 @@ map <- leaflet() %>%
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
     baseGroups=c("OSM (default)", "CartoDB"),
-    overlayGroups=c("Régions", "Départements", "EPCI", "Communes", "Feux"),
+    overlayGroups=c("Régions", "Départements", "FEUXCOM", "FEUXDFCI2"),
     options=layersControlOptions(collapsed=TRUE)) %>%
   # Je définit quelles couches sont cachées par défaut
   # Ca aide à ce que la carte charge plus vite.
@@ -218,7 +218,7 @@ map <- leaflet() %>%
 # Sauvegarde map (la cartographie) vers le fichier map.html dans le wd par défaut
 # (car je ne l'ai pas redéterminé)
 # TODO ça crash...
-#saveWidget(map, file="map.html")
+saveWidget(map, file="map.html")
 
 # Maintenant que c'est enregistré je peux supprimer toutes les variables qui m'ont permise de générer le graph
 rm(map)
