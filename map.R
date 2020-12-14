@@ -41,51 +41,63 @@ setwd("..")
 
 # Communes
 
-# je fait une jointure du shapefile et des donnees promethees sur les champs du code insee
+# Je fais un group by pour regrouper les données selon un champ puis un summarise pour y associer les données
+df_feux_gb_com <- df_feux %>% group_by(code_INSEE) %>% summarize(surface_ha=sum(surface_ha), nbr_feux=n())
+
+# Je fait une jointure du shapefile et des donnees promethees sur les champs du code insee
 df_feux_com = df_com %>%
   merge(
     x=df_com,
-    y=df_feux,
+    y=df_feux_gb_com,
     by.x="INSEE_COM",
     by.y="code_INSEE",
     duplicateGeoms=TRUE
   )
 
+rm(df_feux_gb_com)
+# Je supprime les communes qui ne comportent pas de feux
 #df_feux_com <- subset(df_feux_com, df_feux_com$surf_parcourue_m2 != 0)
-#part = df_feux_com@data[df_feux_com@data$dep == "13",]
-df_feux_com = subset(df_feux_com, df_feux_com@data$type_feu == "0")
+df_feux_com = subset(df_feux_com, df_feux_com@data$nbr_feux != "")
 
 # DFCI2
 
-# je fait une jointure du shapefile et des donnees promethees sur les champs du code insee
-df_feux_dfci2 = df_dfci2 %>%
+# Je fais un group by pour regrouper les données selon un champ puis un summarise pour y associer les données
+df_feux_gb_dfci2 <- df_feux %>% group_by(code_DFCI) %>% summarize(surface_ha=sum(surface_ha), nbr_feux=n())
+
+# Je fait une jointure du shapefile et des donnees promethees sur les champs du code insee
+df_feux_dfci2 = ddf_dfci2 %>%
   merge(
     x=df_dfci2,
-    y=df_feux,
+    y=df_feux_gb_dfci2,
     by.x="NOM",
     by.y="code_DFCI",
     duplicateGeoms=TRUE
   )
 
+rm(df_feux_gb_dfci2)
+# Je supprime les communes qui ne comportent pas de feux
 #df_feux_com <- subset(df_feux_com, df_feux_com$surf_parcourue_m2 != 0)
-#part = df_feux_com@data[df_feux_com@data$dep == "13",]
-df_feux_dfci2 = subset(df_feux_dfci2, df_feux_dfci2@data$type_feu == "0")
+df_feux_dfci2 = subset(df_feux_dfci2, df_feux_dfci2@data$nbr_feux != "")
 
-# DFCI20
+# DFCI2
 
-# je fait une jointure du shapefile et des donnees promethees sur les champs du code insee
-df_feux_dfci20 = df_dfci20 %>%
+# Je fais un group by pour regrouper les données selon un champ puis un summarise pour y associer les données
+df_feux_gb_dfci20 <- df_feux %>% group_by(code_DFCI) %>% summarize(surface_ha=sum(surface_ha), nbr_feux=n())
+
+# Je fait une jointure du shapefile et des donnees promethees sur les champs du code insee
+df_feux_dfci20 = ddf_dfci20 %>%
   merge(
     x=df_dfci20,
-    y=df_feux,
+    y=df_feux_gb_dfci20,
     by.x="NOM",
     by.y="code_DFCI",
     duplicateGeoms=TRUE
   )
 
+rm(df_feux_gb_dfci20)
+# Je supprime les communes qui ne comportent pas de feux
 #df_feux_com <- subset(df_feux_com, df_feux_com$surf_parcourue_m2 != 0)
-#part = df_feux_com@data[df_feux_com@data$dep == "13",]
-df_feux_dfci20 = subset(df_feux_dfci20, df_feux_dfci20@data$type_feu == "0")
+df_feux_dfci20 = subset(df_feux_dfci20, df_feux_dfci20@data$nbr_feux != "")
 
 #spplot(y, "surface_ha", main = "Area of Different Ecoregions", sub = "Average Area", col = "transparent")
 #my.palette <- brewer.pal(n = 8, name = "Blues") #color selection no.8 #of blues
@@ -144,8 +156,8 @@ map <- leaflet() %>%
   # pour faire des graduations)
   addPolygons(data=df_reg, fill=FALSE, weight=2, color="#000", group="Régions") %>%
   addPolygons(data=df_dep, fill=FALSE, weight=1, color="#000", group="Départements") %>%
-  addPolygons(data=df_epci, fill=FALSE, weight=0.5, color="#000", group="EPCI") %>%
-  addPolygons(data=df_com, fill=FALSE, weight=0.25, color="#000", group="Communes") %>%
+#  addPolygons(data=df_epci, fill=FALSE, weight=0.5, color="#000", group="EPCI") %>%
+#  addPolygons(data=df_com, fill=FALSE, weight=0.25, color="#000", group="Communes") %>%
   
   # Ajout des couches de données
   addPolygons(
@@ -186,9 +198,8 @@ map <- leaflet() %>%
   # Ca aide à ce que la carte charge plus vite.
   hideGroup("FEUXCOM") %>%
   hideGroup("FEUXDFCI2") %>%
-  hideGroup("EPCI") %>%
-  hideGroup("Communes") %>%
-  hideGroup("Feux") %>%
+#  hideGroup("EPCI") %>%
+#  hideGroup("Communes") %>%
   
   # Ajout tout simple de la barre d'échelle
   addScaleBar(position="bottomleft")
