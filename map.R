@@ -141,9 +141,14 @@ palette_feux_dfci2 <- colorBin("YlOrRd",
                              bins=bins)
 
 # Définition du format des popups
-popup_feux <- paste("Commune:", df_feux_com@data$NOM_COM_M, "<br/>",
+popup_feux_com <- paste("Commune:", df_feux_com@data$NOM_COM_M, "<br/>",
                     "Surface brulée: ", round(df_feux_com$surface_ha, 2), "ha",
                     sep="") %>%
+  lapply(htmltools::HTML)
+
+popup_feux_dfci <- paste("Carreau DFCI:", df_feux_dfci2@data$NOM, "<br/>",
+                        "Surface brulée: ", round(df_feux_com$surface_ha, 2), "ha",
+                        sep="") %>%
   lapply(htmltools::HTML)
 
 # Définition du format de la légende
@@ -173,8 +178,8 @@ map <- leaflet() %>%
   # pour faire des graduations)
   addPolygons(data=df_reg, fill=FALSE, weight=2, color="#000", group="Régions") %>%
   addPolygons(data=df_dep, fill=FALSE, weight=1, color="#000", group="Départements") %>%
-  addPolygons(data=df_epci, fill=FALSE, weight=0.5, color="#000", group="EPCI") %>%
-  addPolygons(data=df_com, fill=FALSE, weight=0.25, color="#000", group="Communes") %>%
+  #addPolygons(data=df_epci, fill=FALSE, weight=0.5, color="#000", group="EPCI") %>%
+  #addPolygons(data=df_com, fill=FALSE, weight=0.25, color="#000", group="Communes") %>%
   
   # AJout des données de feux
   # Ajout de la légende
@@ -190,7 +195,7 @@ map <- leaflet() %>%
     color="white",
     group="Surface brulée par communes",
     weight=0.3,
-    label=popup_feux,
+    label=popup_feux_com,
     labelOptions=labelOptions( 
       style=list("font-weight"="normal", padding="3px 8px"), 
       textsize="13px", 
@@ -211,7 +216,7 @@ map <- leaflet() %>%
     color="white",
     group="Surface brulée par carreau DFCI de 2km",
     weight=0.3,
-    label=popup_feux,
+    label=popup_feux_dfci,
     labelOptions=labelOptions( 
       style=list("font-weight"="normal", padding="3px 8px"), 
       textsize="13px", 
