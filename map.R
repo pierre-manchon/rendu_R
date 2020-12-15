@@ -116,7 +116,7 @@ df_feux_dfci20 = subset(df_feux_dfci20, df_feux_dfci20@data$nbr_feux != "")
 
 # Fonction pour récupérer une palette de couleur selon un dataframe et un champ
 get_pal <- function(df, colname="") {
-  pal <- colorQuantile("YlOrRd", domain=df@data[colname])(df@data[colname])
+  pal <- colorBin("YlOrRd", domain=df@data[colname])(df@data[colname])
   return(pal)
 }
 
@@ -134,13 +134,17 @@ popup_dfci2 <- paste("Commune: ", df_feux_com@data$NOM_COM_M, "<br/>",
                      sep="") %>% lapply(htmltools::HTML)
 
 # Je créé ma carte leaflet de base avec
-map <- leaflet() %>%
+map <- leaflet() %>% 
+
   # Localisation de base de la carte lorsqu'elle est initialisée
   setView(5, 45, 6) %>%
   
-  # Ajout des fonds de cartes: group correspond au nom que l'on veut donner au fond de carte
-  # (C'est ce nom que l'on va encapsuler dans un groupe du LayersControl et qui apparaîtra dans
-  # la légende).
+  # Ca sert à rien mais c'est pas pour la place que ça prend
+  #addMiniMap(toggleDisplay=TRUE)
+  
+  # Ajout du fond de carte: group correspond au nom que l'on veut donner au fond de carte
+  # (C'est ce nom que l'on devrait encapsuler dans un groupe du LayersControl et qui devrait apparaître dans
+  # la légende). Moi je met que OSm car ça fait très bien le travail
   addTiles(group="OSM (default)") %>%
   
   # Ajout des polygones des régions, départements, epci, communes et définition pour chacun
@@ -174,6 +178,16 @@ map <- leaflet() %>%
     group="DFCI 2km",
     weight=0.3,
     label=popup_dfci2) %>%
+
+  leaflet::addLegend("bottomleft",
+                     pal=palette_feux_com,
+                     values=df_feux_com@data$surface_ha,
+                     group="Communes") %>%
+
+  leaflet::addLegend("bottomleft",
+                     pal=palette_feux_dfci2,
+                     values=df_feux_dfci2@data$surface_ha,
+                     group="DFCI 2km") %>%
   
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
@@ -196,8 +210,8 @@ map <- leaflet() %>%
 map
 
 # Sauvegarde map (la cartographie) vers le fichier map.html dans le wd par défaut
-# TODO ça crash...
-#saveWidget(map, file="map.html")
+# selfcontained=FALSE permet d'enregistrer (sinon ça crashait à cause du manque de RAM
+#(probablement car le html était trop lourd))
 saveWidget(widget=map,
            file="map.html",
            selfcontained = FALSE)
