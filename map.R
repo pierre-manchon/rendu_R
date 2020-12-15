@@ -230,6 +230,9 @@ map
 # Sauvegarde map (la cartographie) vers le fichier map.html dans le wd par défaut
 # TODO ça crash...
 #saveWidget(map, file="map.html")
+saveWidget(widget=map,
+           file="map.html",
+           selfcontained = FALSE)
 
 # Maintenant que c'est enregistré je peux supprimer toutes les variables qui m'ont permise de générer le graph
 #rm(map)
