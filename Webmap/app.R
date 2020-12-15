@@ -5,47 +5,43 @@
 
 library(shiny)
 
-# Define UI for application that draws a histogram
 ui <- fluidPage(
-
-    # Application title
     titlePanel("Webmapping incendies sud de france"),
-
-    # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min=1,
-                        max=50,
-                        value=30)
+            
+            selectizeInput(
+                inputId="options",
+                label="1. Titre 1",
+                choices=df_feux$dep)),
+        
+        dateRangeInput(
+            inputId="dates",
+            label=h3("Date range"),
+            start="01/01/1973"),
+        #hr(),
+        #fluidRow(column(4, verbatimTextOutput("value")))
         ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-           plotOutput("distPlot")
-        )
+    mainPanel(
+        helpText('Output of the examples in the left:'),
+        verbatimTextOutput('ex_out'))
     )
-)
 
-# Define server logic required to draw a histogram
+date <- function(input, output) {
+    output$value <- renderPrint({ input$dates })
+    }
+
+
 server <- function(input, output) {
-
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x),
-                    max(x),
-                    length.out=input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x,
-             breaks=bins,
-             col='darkgray',
-             border='white')
-    })
+    output$ex_out <- renderPrint({
+        str(sapply(
+            sprintf('e%d', 0:7),
+            
+            function(id) {
+                input[[id]]},
+            simplify=FALSE))
+        })
 }
 
-# Run the application 
 shinyApp(ui=ui,
          server=server)
