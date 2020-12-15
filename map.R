@@ -149,27 +149,38 @@ map <- leaflet() %>%
   addPolygons(data=df_epci, fill=FALSE, weight=0.5, color="#000", group="EPCI") %>%
   
   # AJout des données de feux
-
   # Ajout des données de feux selon les communes
   addPolygons(
     data=df_feux_com,
-    fillColor=palette_feux_com(df_feux_com@data$surface_ha),
+    fillColor=colorQuantile("YlOrRd", domain=df_feux_com@data$surface_ha),
     fillOpacity = 0.9,
     color="black",
     group="COM",
     weight=0.3,
-    label=popup_feux_com) %>%
-
-  # Ajout des données DFCI à 2km
+    label=paste("Commune: ",
+                df_feux_com@data$NOM_COM_M,
+                "<br/>",
+                "Surface brulée: ",
+                round(df_feux_com@data$surface_ha),
+                "ha",
+                sep="")) %>%
+  
+  # Ajout des données DFCI à 2km 
   addPolygons(
     data=df_feux_dfci2,
-    fillColor=palette_feux_dfci2(df_feux_dfci2@data$surface_ha),
+    fillColor=colorQuantile("YlOrRd", domain=df_feux_dfci2@data$surface_ha),
     fillOpacity = 0.9,
     color="black",
     group="DFCI2",
     weight=0.3,
-    label=popup_feux_dfci2) %>%
-
+    label=paste("Carreau DFCI: ",
+                df_feux_dfci2@data$NOM,
+                "<br/>",
+                "Surface brulée: ",
+                round(df_feux_dfci2@data$surface_ha),
+                "ha",
+                sep="")) %>%
+  
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
     baseGroups=c("COM", "DFCI2"),
