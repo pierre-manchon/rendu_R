@@ -126,17 +126,12 @@ df_feux_dfci20 = subset(df_feux_dfci20, df_feux_dfci20@data$nbr_feux != "")
 # CARTE #
 #########
 
-# Définition des écarts de valeurs dans la symologie
-bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
-
 # Définition de la symbologie graphique selon un champ
 palette_feux_com <- colorBin("YlOrRd",
-                             domain=df_feux_com@data$surface_ha,
-                             bins=bins)
+                             domain=df_feux_com@data$surface_ha)
 
 palette_feux_dfci2 <- colorBin("YlOrRd",
-                             domain=df_feux_dfci2@data$surface_ha,
-                             bins=bins)
+                             domain=df_feux_dfci2@data$surface_ha)
 
 # Définition du format des popups
 popup_feux_com <- paste("Commune: ", df_feux_com@data$NOM_COM_M, "<br/>",
@@ -196,14 +191,16 @@ map <- leaflet() %>%
   
   # n'est pas executé
   leaflet:addLegend(map,
-                    values=df_feux_com@data$surface_ha,
+                    values=round(df_feux_com@data$surface_ha),
                     group="Surface brulée par communes",
                     pal=palette_feux_com,
+                    labFormat = labelFormat(suffix="ha"),
                     position="bottomleft") %>%
   leaflet::addLegend(map,
-                     values=df_feux_dfci2@data$surface_ha,
+                     values=round(df_feux_dfci2@data$surface_ha),
                      group="Surface brulée par carreau DFCI de 2km",
                      pal=palette_feux_dfci2,
+                     labFormat = labelFormat(suffix="ha"),
                      position="bottomleft") %>%
 
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
