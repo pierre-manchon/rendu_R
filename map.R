@@ -196,12 +196,12 @@ map <- leaflet() %>%
   
   # n'est pas executé
   leaflet:addLegend(map,
-                    values=df_feux_com,
+                    values=df_feux_com@data$surface_ha,
                     group="Surface brulée par communes",
                     pal=palette_feux_com,
                     position="bottomleft") %>%
   leaflet::addLegend(map,
-                     values=df_feux_dfci2,
+                     values=df_feux_dfci2@data$surface_ha,
                      group="Surface brulée par carreau DFCI de 2km",
                      pal=palette_feux_dfci2,
                      position="bottomleft") %>%
