@@ -197,7 +197,6 @@ map <- leaflet() %>%
   # Ajout tout simple de la barre d'échelle
   addScaleBar(position="bottomleft")
 
-
 # Ajout de la légende
 # raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
 # écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problème
