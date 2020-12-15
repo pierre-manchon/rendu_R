@@ -119,8 +119,8 @@ get_pal <- function(df, colname="") {
   pal <- colorBin("YlOrRd", domain=df@data[colname])(df@data[colname])
   return(pal)
 }
-
-m <- get_pal(df_feux_com, "surface_ha")
+# TODO 'list' object cannot be coerced to type 'double'
+#get_pal(df_feux_com, "surface_ha")
 
 palette_feux_com <- colorNumeric("YlOrRd", domain=df_feux_com@data$surface_ha)
 palette_feux_dfci2 <- colorNumeric("YlOrRd", domain=df_feux_dfci2@data$surface_ha)
