@@ -135,12 +135,12 @@ palette_feux_dfci2 <- colorQuantile("YlOrRd",
 
 # Définition du format des popups
 popup_feux_com <- paste("Commune: ", df_feux_com@data$NOM_COM_M, "<br/>",
-                    "Surface brulée: ", round(df_feux_com, 2), "ha",
+                    "Surface brulée: ", round(df_feux_com@data$surface_ha), "ha",
                     sep="") %>%
   lapply(htmltools::HTML)
 
 popup_feux_dfci2 <- paste("Carreau DFCI: ", df_feux_dfci2@data$NOM, "<br/>",
-                        "Surface brulée: ", round(df_feux_dfci2@data$surface_ha, 2), "ha",
+                        "Surface brulée: ", round(df_feux_dfci2@data$surface_ha), "ha",
                         sep="") %>%
   lapply(htmltools::HTML)
 
@@ -196,29 +196,31 @@ map <- leaflet() %>%
   
   # Ajout tout simple de la barre d'échelle
   addScaleBar(position="bottomleft")
-  
-# Créé litéralement la carte en executant la fonction leaflet derrière
-# C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
-# (je préfère la sauvegarder en html directement à la fin du script)
-map
+
 
 # Ajout de la légende
 # raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
 # écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problème
 
 # n'est pas executé
-leaflet:addLegend(map,
-                  values=round(df_feux_com@data$surface_ha),
-                  group="Surface brulée par communes",
-                  pal=palette_feux_com,
-                  labFormat = labelFormat(suffix="ha"),
-                  position="bottomleft")
-leaflet::addLegend(map,
-                   values=round(df_feux_dfci2@data$surface_ha),
-                   group="Surface brulée par carreau DFCI de 2km",
-                   pal=palette_feux_dfci2,
-                   labFormat = labelFormat(suffix="ha"),
-                   position="bottomleft")
+legend_feux_com <- leaflet::addLegend(map,
+                                      values=round(df_feux_com@data$surface_ha),
+                                      group="Surface brulée par communes",
+                                      pal=palette_feux_com,
+                                      labFormat = labelFormat(suffix="ha"),
+                                      position="bottomleft")
+
+legend_feux_dfci2 <- leaflet::addLegend(map,
+                                        values=round(df_feux_dfci2@data$surface_ha),
+                                        group="Surface brulée par carreau DFCI de 2km",
+                                        pal=palette_feux_dfci2,
+                                        labFormat = labelFormat(suffix="ha"),
+                                        position="bottomleft")
+
+# Créé litéralement la carte en executant la fonction leaflet derrière
+# C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
+# (je préfère la sauvegarder en html directement à la fin du script)
+map
 
 # Sauvegarde map (la cartographie) vers le fichier map.html dans le wd par défaut
 # TODO ça crash...
