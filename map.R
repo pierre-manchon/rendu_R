@@ -197,8 +197,7 @@ map <- leaflet() %>%
   
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
-    baseGroups=c("Communes", "DFCI 2km"),
-    overlayGroups=c("Régions", "Départements", "EPCI"),
+    overlayGroups=c("Régions", "Départements", "EPCI", "Communes", "DFCI 2km"),
     options=layersControlOptions(collapsed=TRUE)) %>%
     
   # Je définit quelles couches sont cachées par défaut
