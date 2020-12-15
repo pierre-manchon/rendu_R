@@ -182,18 +182,16 @@ map <- leaflet() %>%
   leaflet::addLegend(data=df_feux_com,
                      pal=palette_feux_com,
                      values=df_feux_com@data$surface_ha,
-                     title="Surface brulée selon les communes",
+                     title="Surface brulée (ha)",
                      position="bottomleft",
-                     group="Communes",
-                     label=labelFormat(suffix=" ha")) %>%
+                     group="Communes") %>%
 
   leaflet::addLegend(data=df_feux_dfci2,
                      pal=palette_feux_dfci2,
                      values=df_feux_dfci2@data$surface_ha,
-                     title="Surface brulée selon le carroyage DFCi de 2km",
+                     title="Surface brulée (ha)",
                      position="bottomleft",
-                     group="DFCI 2km",
-                     label=labelFormat(suffix=" ha")) %>%
+                     group="DFCI 2km") %>%
   
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
