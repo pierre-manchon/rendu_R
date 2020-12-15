@@ -179,14 +179,16 @@ map <- leaflet() %>%
     weight=0.3,
     label=popup_dfci2) %>%
 
-  leaflet::addLegend("bottomleft",
+  leaflet::addLegend(data=df_feux_com,
                      pal=palette_feux_com,
                      values=df_feux_com@data$surface_ha,
+                     position="bottomleft",
                      group="Communes") %>%
 
-  leaflet::addLegend("bottomleft",
+  leaflet::addLegend(data=df_feux_dfci2,
                      pal=palette_feux_dfci2,
                      values=df_feux_dfci2@data$surface_ha,
+                     position="bottomleft",
                      group="DFCI 2km") %>%
   
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
