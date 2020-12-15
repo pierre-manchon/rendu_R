@@ -122,8 +122,8 @@ get_pal <- function(df, colname="") {
 
 m <- get_pal(df_feux_com, "surface_ha")
 
-palette_feux_com <- colorQuantile("YlOrRd", domain=df_feux_com@data$surface_ha)
-palette_feux_dfci2 <- colorQuantile("YlOrRd", domain=df_feux_dfci2@data$surface_ha)
+palette_feux_com <- colorNumeric("YlOrRd", domain=df_feux_com@data$surface_ha)
+palette_feux_dfci2 <- colorNumeric("YlOrRd", domain=df_feux_dfci2@data$surface_ha)
 
 popup_com <- paste("Carreau DFCI: ", df_feux_dfci2@data$NOM, "<br/>",
                    "Surface brulée: ", round(df_feux_dfci2@data$surface_ha), "ha",
@@ -182,14 +182,18 @@ map <- leaflet() %>%
   leaflet::addLegend(data=df_feux_com,
                      pal=palette_feux_com,
                      values=df_feux_com@data$surface_ha,
+                     title="Surface brulée selon les communes",
                      position="bottomleft",
-                     group="Communes") %>%
+                     group="Communes",
+                     label=labelFormat(suffix=" ha")) %>%
 
   leaflet::addLegend(data=df_feux_dfci2,
                      pal=palette_feux_dfci2,
                      values=df_feux_dfci2@data$surface_ha,
+                     title="Surface brulée selon le carroyage DFCi de 2km",
                      position="bottomleft",
-                     group="DFCI 2km") %>%
+                     group="DFCI 2km",
+                     label=labelFormat(suffix=" ha")) %>%
   
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
