@@ -139,25 +139,14 @@ palette_feux_dfci2 <- colorBin("YlOrRd",
                              bins=bins)
 
 # Définition du format des popups
-popup_feux_com <- paste("Commune:", df_feux_com@data$NOM_COM_M, "<br/>",
+popup_feux_com <- paste("Commune: ", df_feux_com@data$NOM_COM_M, "<br/>",
                     "Surface brulée: ", round(df_feux_com$surface_ha, 2), "ha",
                     sep="") %>%
   lapply(htmltools::HTML)
 
-popup_feux_dfci2 <- paste("Carreau DFCI:", df_feux_dfci2@data$NOM, "<br/>",
+popup_feux_dfci2 <- paste("Carreau DFCI: ", df_feux_dfci2@data$NOM, "<br/>",
                         "Surface brulée: ", round(df_feux_dfci2@data$surface_ha, 2), "ha",
                         sep="") %>%
-  lapply(htmltools::HTML)
-
-# Définition du format de la légende
-# De l'aide sur le formattage di sprintf
-# https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/sprintf
-
-legend_feux <- paste("Région: ", df_reg$NOM_REG,"<br/>",
-                    "Département: ", df_dep$NOM_DEP, "<br/>",
-                    "EPCI: ", df_epci$NOM_EPCI, "<br/>",
-                    "Commune:", df_com$NOM_COM,
-                    sep="") %>%
   lapply(htmltools::HTML)
 
 # Je créé ma carte leaflet de base avec
@@ -186,6 +175,7 @@ map <- leaflet() %>%
     data=df_feux_com,
     fillColor=palette_feux_com(df_feux_com@data$surface_ha),
     fillOpacity = 0.9,
+    color="black",
     group="COM",
     weight=0.3,
     label=popup_feux_com) %>%
@@ -195,14 +185,31 @@ map <- leaflet() %>%
     data=df_feux_dfci2,
     fillColor=palette_feux_dfci2(df_feux_dfci2@data$surface_ha),
     fillOpacity = 0.9,
+    color="black",
     group="DFCI2",
     weight=0.3,
     label=popup_feux_dfci2) %>%
+  
+  # Ajout de la légende
+  # raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
+  # écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problème
+  
+  # n'est pas executé
+  leaflet:addLegend(map,
+                    values=df_feux_com,
+                    group="Surface brulée par communes",
+                    pal=palette_feux_com,
+                    position="bottomleft") %>%
+  leaflet::addLegend(map,
+                     values=df_feux_dfci2,
+                     group="Surface brulée par carreau DFCI de 2km",
+                     pal=palette_feux_dfci2,
+                     position="bottomleft") %>%
 
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
-    baseGroups=c("OSM (default)", "CartoDB"),
-    overlayGroups=c("Régions", "Départements", "EPCI", "COM", "DFCI2"),
+    baseGroups=c("OSM (default)", "CartoDB", "COM", "DFCI2"),
+    overlayGroups=c("Régions", "Départements", "EPCI"),
     options=layersControlOptions(collapsed=TRUE)) %>%
   # Je définit quelles couches sont cachées par défaut
   # Ca aide à ce que la carte charge plus vite.
@@ -215,22 +222,6 @@ map <- leaflet() %>%
   
   # Ajout tout simple de la barre d'échelle
   addScaleBar(position="bottomleft")
-
-# Ajout de la légende
-# raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
-# écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problème
-
-# n'est pas executé
-leaflet:addLegend(map,
-                  values=df_feux_com,
-                  group="Surface brulée par communes",
-                  pal=palette_feux_com,
-                  position="bottomleft")
-leaflet::addLegend(map,
-                   values=df_feux_dfci2,
-                   group="Surface brulée par carreau DFCI de 2km",
-                   pal=palette_feux_dfci2,
-                   position="bottomleft")
   
 # Créé litéralement la carte en executant la fonction leaflet derrière
 # C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
