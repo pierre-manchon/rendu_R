@@ -1,3 +1,4 @@
+library(xts)
 library(dplyr)
 library(rgdal)
 library(leaflet)
@@ -113,23 +114,9 @@ df_feux_dfci20 = subset(df_feux_dfci20, df_feux_dfci20@data$nbr_feux != "")
 # CARTE #
 #########
 
-# Définition de la symbologie graphique selon un champ
-palette_feux_com <- colorQuantile("YlOrRd",
-                             domain=df_feux_com@data$surface_ha)
+palette_feux_com <- colorQuantile("YlOrRd", domain=df_feux_com@data$surface_ha)
 
-palette_feux_dfci2 <- colorQuantile("YlOrRd",
-                             domain=df_feux_dfci2@data$surface_ha)
-
-# Définition du format des popups
-popup_feux_com <- paste("Commune: ", df_feux_com@data$NOM_COM_M, "<br/>",
-                    "Surface brulée: ", round(df_feux_com@data$surface_ha), "ha",
-                    sep="") %>%
-  lapply(htmltools::HTML)
-
-popup_feux_dfci2 <- paste("Carreau DFCI: ", df_feux_dfci2@data$NOM, "<br/>",
-                        "Surface brulée: ", round(df_feux_dfci2@data$surface_ha), "ha",
-                        sep="") %>%
-  lapply(htmltools::HTML)
+palette_feux_dfci2 <- colorQuantile("YlOrRd", domain=df_feux_com@data$surface_ha)
 
 # Je créé ma carte leaflet de base avec
 map <- leaflet() %>%
@@ -152,9 +139,8 @@ map <- leaflet() %>%
   # Ajout des données de feux selon les communes
   addPolygons(
     data=df_feux_com,
-    fillColor=colorQuantile("YlOrRd", domain=df_feux_com@data$surface_ha),
+    fillColor=palette_feux_com(df_feux_com@data$surface_ha),
     fillOpacity = 0.9,
-    color="black",
     group="COM",
     weight=0.3,
     label=paste("Commune: ",
@@ -163,14 +149,17 @@ map <- leaflet() %>%
                 "Surface brulée: ",
                 round(df_feux_com@data$surface_ha),
                 "ha",
-                sep="")) %>%
+                sep="")) %>% lapply(htmltools::HTML) %>%
+  
+  # Ajout de la légende
+  # raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
+  # écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problèm
   
   # Ajout des données DFCI à 2km 
   addPolygons(
     data=df_feux_dfci2,
-    fillColor=colorQuantile("YlOrRd", domain=df_feux_dfci2@data$surface_ha),
+    fillColor=palette_feux_dfci2(df_feux_dfci2@data$surface_ha),
     fillOpacity = 0.9,
-    color="black",
     group="DFCI2",
     weight=0.3,
     label=paste("Carreau DFCI: ",
@@ -179,13 +168,14 @@ map <- leaflet() %>%
                 "Surface brulée: ",
                 round(df_feux_dfci2@data$surface_ha),
                 "ha",
-                sep="")) %>%
+                sep="")) %>% lapply(htmltools::HTML)
   
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
     baseGroups=c("COM", "DFCI2"),
     overlayGroups=c("Régions", "Départements", "EPCI"),
     options=layersControlOptions(collapsed=TRUE)) %>%
+    
   # Je définit quelles couches sont cachées par défaut
   # Ca aide à ce que la carte charge plus vite.
   hideGroup("EPCI") %>%
@@ -194,25 +184,6 @@ map <- leaflet() %>%
   
   # Ajout tout simple de la barre d'échelle
   addScaleBar(position="bottomleft")
-
-# Ajout de la légende
-# raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
-# écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problème
-
-# n'est pas executé
-legend_feux_com <- leaflet::addLegend(map,
-                                      values=round(df_feux_com@data$surface_ha),
-                                      group="Surface brulée par communes",
-                                      pal=palette_feux_com,
-                                      labFormat = labelFormat(suffix="ha"),
-                                      position="bottomleft")
-
-legend_feux_dfci2 <- leaflet::addLegend(map,
-                                        values=round(df_feux_dfci2@data$surface_ha),
-                                        group="Surface brulée par carreau DFCI de 2km",
-                                        pal=palette_feux_dfci2,
-                                        labFormat = labelFormat(suffix="ha"),
-                                        position="bottomleft")
 
 # Créé litéralement la carte en executant la fonction leaflet derrière
 # C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
