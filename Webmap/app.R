@@ -13,18 +13,21 @@ ui <- fluidPage(
             selectizeInput(
                 inputId="options",
                 label="1. Titre 1",
-                choices=df_feux$dep)),
+                choices=df_feux$dep),
+            
+            dateRangeInput(
+                inputId="dates",
+                label=h3("Date range"),
+                start="1973-01-01",
+                startview="year",
+                language="fr",
+                separator=" à ",
+                autoclose=TRUE)),
         
-        dateRangeInput(
-            inputId="dates",
-            label=h3("Date range"),
-            start="01/01/1973"),
-        #hr(),
-        #fluidRow(column(4, verbatimTextOutput("value")))
+        mainPanel(
+            helpText('Output of the examples in the left:'),
+            verbatimTextOutput('ex_out'))
         ),
-    mainPanel(
-        helpText('Output of the examples in the left:'),
-        verbatimTextOutput('ex_out'))
     )
 
 date <- function(input, output) {
