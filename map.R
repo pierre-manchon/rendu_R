@@ -114,9 +114,20 @@ df_feux_dfci20 = subset(df_feux_dfci20, df_feux_dfci20@data$nbr_feux != "")
 # CARTE #
 #########
 
-palette_feux_com <- colorQuantile("YlOrRd", domain=df_feux_com@data$surface_ha)
+# Fonction pour récupérer une palette de couleur selon un dataframe et un champ
+get_pal <- function(df, colname="") {
+  pal <- colorQuantile("YlOrRd", domain=df@data[colname])(df@data[colname])
+  return(pal)
+}
 
-palette_feux_dfci2 <- colorQuantile("YlOrRd", domain=df_feux_com@data$surface_ha)
+m <- get_pal("df_feux_com", "surface_ha")
+
+palette_feux_com <- colorQuantile("YlOrRd", domain=df_feux_com@data$surface_ha)
+palette_feux_dfci2 <- colorQuantile("YlOrRd", domain=df_feux_dfci2@data$surface_ha)
+
+popup <- paste("Commune: ", df_feux_com@data$NOM_COM_M, "<br/>",
+               "Surface brulée: ", round(df_feux_com@data$surface_ha), "ha",
+               sep="") %>% lapply(htmltools::HTML)
 
 # Je créé ma carte leaflet de base avec
 map <- leaflet() %>%
@@ -143,13 +154,7 @@ map <- leaflet() %>%
     fillOpacity = 0.9,
     group="COM",
     weight=0.3,
-    label=paste("Commune: ",
-                df_feux_com@data$NOM_COM_M,
-                "<br/>",
-                "Surface brulée: ",
-                round(df_feux_com@data$surface_ha),
-                "ha",
-                sep="")) %>% lapply(htmltools::HTML) %>%
+    label=lab
   
   # Ajout de la légende
   # raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
