@@ -125,13 +125,13 @@ m <- get_pal(df_feux_com, "surface_ha")
 palette_feux_com <- colorNumeric("YlOrRd", domain=df_feux_com@data$surface_ha)
 palette_feux_dfci2 <- colorNumeric("YlOrRd", domain=df_feux_dfci2@data$surface_ha)
 
-popup_com <- paste("Carreau DFCI: ", df_feux_dfci2@data$NOM, "<br/>",
-                   "Surface brulée: ", round(df_feux_dfci2@data$surface_ha), "ha",
+popup_com <- paste("Commune: ", df_feux_com@data$NOM_COM_M, "<br/>",
+                   "Surface brulée: ", round(df_feux_com@data$surface_ha), "ha",
                    sep="") %>% lapply(htmltools::HTML)
 
-popup_dfci2 <- paste("Commune: ", df_feux_com@data$NOM_COM_M, "<br/>",
-                     "Surface brulée: ", round(df_feux_com@data$surface_ha), "ha",
-                     sep="") %>% lapply(htmltools::HTML)
+popup_dfci2 <- paste("Carreau DFCI: ", df_feux_dfci2@data$NOM, "<br/>",
+                   "Surface brulée: ", round(df_feux_dfci2@data$surface_ha), "ha",
+                   sep="") %>% lapply(htmltools::HTML)
 
 # Je créé ma carte leaflet de base avec
 map <- leaflet() %>% 
@@ -210,7 +210,7 @@ map <- leaflet() %>%
 # Créé litéralement la carte en executant la fonction leaflet derrière
 # C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
 # (je préfère la sauvegarder en html directement à la fin du script)
-map
+#map
 
 # Sauvegarde map (la cartographie) vers le fichier map.html dans le wd par défaut
 # selfcontained=FALSE permet d'enregistrer (sinon ça crashait à cause du manque de RAM
