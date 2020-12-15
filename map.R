@@ -109,19 +109,6 @@ rm(df_feux_gb_dfci20)
 # Je supprime les carreaux DFCI qui ne comportent pas de feux (ceux qui n'ont pas de valeur dans le champ nbr_feux)
 df_feux_dfci20 = subset(df_feux_dfci20, df_feux_dfci20@data$nbr_feux != "")
 
-#spplot(y, "surface_ha", main = "Area of Different Ecoregions", sub = "Average Area", col = "transparent")
-#my.palette <- brewer.pal(n = 8, name = "Blues") #color selection no.8 #of blues
-#spplot(l, "AREA", col.regions = my.palette, cuts = 6, col = "transparent") #6 shades of blue
-#library(classInt)
-#my.palette2 <- brewer.pal(n = 8, name = "YlOrRd")
-#breaks.qt <- classIntervals(l$AREA, n = 6, style = "quantile", intervalClosure = "right")
-#spplot(l, "AREA", col = "transparent", col.regions = my.palette2, 
-#       at = breaks.qt$brks)
-#world=readOGR(dsn=getwd(), layer="countries")
-#world$UNREG1 <- as.factor(iconv(as.character(world$UNREG1), "latin1", "UTF-8"))  # avoid the problems with 'tildes' 
-#spplot(world, "UNREG1",main="World Poltical Boundaries", col.regions = colorRampPalette(brewer.pal(12, "Set3"))(18), 
-#       col = "white")  # Plot the 'unreg1' form the 'world' object.
-
 #########
 # CARTE #
 #########
