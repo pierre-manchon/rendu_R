@@ -156,7 +156,8 @@ map <- leaflet() %>%
     data=df_feux_com,
     fillColor=palette_feux_com(df_feux_com@data$surface_ha),
     fillOpacity = 0.9,
-    group="COM",
+    color="black",
+    group="Communes",
     weight=0.3,
     label=popup_com) %>%
   
@@ -169,21 +170,22 @@ map <- leaflet() %>%
     data=df_feux_dfci2,
     fillColor=palette_feux_dfci2(df_feux_dfci2@data$surface_ha),
     fillOpacity = 0.9,
-    group="DFCI2",
+    color="black",
+    group="DFCI 2km",
     weight=0.3,
     label=popup_dfci2) %>%
   
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
-    baseGroups=c("COM", "DFCI2"),
+    baseGroups=c("Communes", "DFCI 2km"),
     overlayGroups=c("Régions", "Départements", "EPCI"),
     options=layersControlOptions(collapsed=TRUE)) %>%
     
   # Je définit quelles couches sont cachées par défaut
   # Ca aide à ce que la carte charge plus vite.
   hideGroup("EPCI") %>%
-  hideGroup("COM") %>%
-  hideGroup("DFCI2") %>%
+  hideGroup("Communes") %>%
+  hideGroup("DFCI 2km") %>%
   
   # Ajout tout simple de la barre d'échelle
   addScaleBar(position="bottomleft")
