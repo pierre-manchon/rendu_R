@@ -120,14 +120,18 @@ get_pal <- function(df, colname="") {
   return(pal)
 }
 
-m <- get_pal("df_feux_com", "surface_ha")
+m <- get_pal(df_feux_com, "surface_ha")
 
 palette_feux_com <- colorQuantile("YlOrRd", domain=df_feux_com@data$surface_ha)
 palette_feux_dfci2 <- colorQuantile("YlOrRd", domain=df_feux_dfci2@data$surface_ha)
 
-popup <- paste("Commune: ", df_feux_com@data$NOM_COM_M, "<br/>",
-               "Surface brulée: ", round(df_feux_com@data$surface_ha), "ha",
-               sep="") %>% lapply(htmltools::HTML)
+popup_com <- paste("Carreau DFCI: ", df_feux_dfci2@data$NOM, "<br/>",
+                   "Surface brulée: ", round(df_feux_dfci2@data$surface_ha), "ha",
+                   sep="") %>% lapply(htmltools::HTML)
+
+popup_dfci2 <- paste("Commune: ", df_feux_com@data$NOM_COM_M, "<br/>",
+                     "Surface brulée: ", round(df_feux_com@data$surface_ha), "ha",
+                     sep="") %>% lapply(htmltools::HTML)
 
 # Je créé ma carte leaflet de base avec
 map <- leaflet() %>%
@@ -154,7 +158,7 @@ map <- leaflet() %>%
     fillOpacity = 0.9,
     group="COM",
     weight=0.3,
-    label=lab
+    label=popup_com) %>%
   
   # Ajout de la légende
   # raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
@@ -167,13 +171,7 @@ map <- leaflet() %>%
     fillOpacity = 0.9,
     group="DFCI2",
     weight=0.3,
-    label=paste("Carreau DFCI: ",
-                df_feux_dfci2@data$NOM,
-                "<br/>",
-                "Surface brulée: ",
-                round(df_feux_dfci2@data$surface_ha),
-                "ha",
-                sep="")) %>% lapply(htmltools::HTML)
+    label=popup_dfci2) %>%
   
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
