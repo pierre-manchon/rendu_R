@@ -127,15 +127,15 @@ df_feux_dfci20 = subset(df_feux_dfci20, df_feux_dfci20@data$nbr_feux != "")
 #########
 
 # Définition de la symbologie graphique selon un champ
-palette_feux_com <- colorBin("YlOrRd",
+palette_feux_com <- colorQuantile("YlOrRd",
                              domain=df_feux_com@data$surface_ha)
 
-palette_feux_dfci2 <- colorBin("YlOrRd",
+palette_feux_dfci2 <- colorQuantile("YlOrRd",
                              domain=df_feux_dfci2@data$surface_ha)
 
 # Définition du format des popups
 popup_feux_com <- paste("Commune: ", df_feux_com@data$NOM_COM_M, "<br/>",
-                    "Surface brulée: ", round(df_feux_com$surface_ha, 2), "ha",
+                    "Surface brulée: ", round(df_feux_com, 2), "ha",
                     sep="") %>%
   lapply(htmltools::HTML)
 
@@ -153,15 +153,13 @@ map <- leaflet() %>%
   # (C'est ce nom que l'on va encapsuler dans un groupe du LayersControl et qui apparaîtra dans
   # la légende).
   addTiles(group="OSM (default)") %>%
-  addProviderTiles(providers$CartoDB.Positron, group="CartoDB") %>%
   
   # Ajout des polygones des régions, départements, epci, communes et définition pour chacun
   # de leur style graphique (sert de fond de carte donc n'utilise pas les données de feux
   # pour faire des graduations)
   addPolygons(data=df_reg, fill=FALSE, weight=2, color="#000", group="Régions") %>%
   addPolygons(data=df_dep, fill=FALSE, weight=1, color="#000", group="Départements") %>%
-  #addPolygons(data=df_epci, fill=FALSE, weight=0.5, color="#000", group="EPCI") %>%
-  #addPolygons(data=df_com, fill=FALSE, weight=0.25, color="#000", group="Communes") %>%
+  addPolygons(data=df_epci, fill=FALSE, weight=0.5, color="#000", group="EPCI") %>%
   
   # AJout des données de feux
 
@@ -184,38 +182,17 @@ map <- leaflet() %>%
     group="DFCI2",
     weight=0.3,
     label=popup_feux_dfci2) %>%
-  
-  # Ajout de la légende
-  # raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
-  # écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problème
-  
-  # n'est pas executé
-  leaflet:addLegend(map,
-                    values=round(df_feux_com@data$surface_ha),
-                    group="Surface brulée par communes",
-                    pal=palette_feux_com,
-                    labFormat = labelFormat(suffix="ha"),
-                    position="bottomleft") %>%
-  leaflet::addLegend(map,
-                     values=round(df_feux_dfci2@data$surface_ha),
-                     group="Surface brulée par carreau DFCI de 2km",
-                     pal=palette_feux_dfci2,
-                     labFormat = labelFormat(suffix="ha"),
-                     position="bottomleft") %>%
 
   # Ajout du menu de control des couches et regroupement des couches par groupes de control.
   addLayersControl(
-    baseGroups=c("OSM (default)", "CartoDB", "COM", "DFCI2"),
+    baseGroups=c("COM", "DFCI2"),
     overlayGroups=c("Régions", "Départements", "EPCI"),
     options=layersControlOptions(collapsed=TRUE)) %>%
   # Je définit quelles couches sont cachées par défaut
   # Ca aide à ce que la carte charge plus vite.
   hideGroup("EPCI") %>%
-  hideGroup("Communes") %>%
   hideGroup("COM") %>%
   hideGroup("DFCI2") %>%
-  #Surface brulée par communes
-  #Surface brulée par carreau DFCI de 2km
   
   # Ajout tout simple de la barre d'échelle
   addScaleBar(position="bottomleft")
@@ -224,6 +201,25 @@ map <- leaflet() %>%
 # C'est là que je génère le rendu de la carte dans le viewer en appelant la fonction map
 # (je préfère la sauvegarder en html directement à la fin du script)
 map
+
+# Ajout de la légende
+# raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
+# écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problème
+
+# n'est pas executé
+leaflet:addLegend(map,
+                  values=round(df_feux_com@data$surface_ha),
+                  group="Surface brulée par communes",
+                  pal=palette_feux_com,
+                  labFormat = labelFormat(suffix="ha"),
+                  position="bottomleft")
+leaflet::addLegend(map,
+                   values=round(df_feux_dfci2@data$surface_ha),
+                   group="Surface brulée par carreau DFCI de 2km",
+                   pal=palette_feux_dfci2,
+                   labFormat = labelFormat(suffix="ha"),
+                   position="bottomleft")
+
 # Sauvegarde map (la cartographie) vers le fichier map.html dans le wd par défaut
 # TODO ça crash...
 #saveWidget(map, file="map.html")
