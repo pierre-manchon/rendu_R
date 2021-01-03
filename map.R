@@ -1,3 +1,7 @@
+######################
+# IMPORT DES MODULES #
+######################
+
 library(xts)
 library(dplyr)
 library(rgdal)
@@ -11,18 +15,18 @@ library(RColorBrewer)
 # LECTURE DES DONNEES #
 #######################
 
-# Je définit le path du wd comme étant le sous dossier data pour lire les couches sig
+# Je definit le path du wd comme etant le sous dossier data pour lire les couches sig
 setwd("./data/")
 
-# Je lis les données brutes en csv de l'export de la base prométhée
+# Je lis les donnees brutes en csv de l'export de la base promethee
 df_feux <- read.csv2("liste_incendies_ du_07_12_2020_formatte.csv")
 
-# Tableaux croisés dynamiques nombre, surface totale, surface max sur :
-# Année (graphe) commenter
+# Tableaux croises dynamiques nombre, surface totale, surface max sur :
+# Annee (graphe) commenter
 # mois et heure (surface) commenter
-# départements (graphe) commenter
+# departements (graphe) commenter
 
-# Je lis la couche vecteur des régions, départements, communes, epci
+# Je lis la couche vecteur des regions, departements, communes, epci
 df_reg <- readOGR(dsn=getwd(), layer="REGION")
 df_dep <- readOGR(dsn=getwd(), layer="DEPARTEMENT")
 df_com <- readOGR(dsn=getwd(), layer="COMMUNE")
@@ -32,7 +36,7 @@ df_epci <- readOGR(dsn=getwd(), layer="EPCI")
 df_dfci2 <- readOGR(dsn=getwd(), layer="DFCI2")
 df_dfci20 <- readOGR(dsn=getwd(), layer="DFCI20")
 
-# Je redéfinit le path du wd un dossier au dessus dans la racine pour retourner dans le dossier
+# Je redefinit le path du wd un dossier au dessus dans la racine pour retourner dans le dossier
 # principal du projet.
 setwd("..")
 
@@ -42,11 +46,11 @@ setwd("..")
 
 # Communes
 
-# Je fais un group by pour regrouper les données selon le champ code_INSEE puis un summarise pour y associer
-# les données de surface brulée ainsi que de nombre de feux
+# Je fais un group by pour regrouper les donnees selon le champ code_INSEE puis un summarise pour y associer
+# les donnees de surface brulee ainsi que de nombre de feux
 df_feux_gb_com <- df_feux %>% group_by(code_INSEE) %>% summarize(surface_ha=sum(surface_ha), nbr_feux=n())
 
-# Je fait une jointure du shapefile des communes et des donnees promethees de feux que j'ai regroupé
+# Je fait une jointure du shapefile des communes et des donnees promethees de feux que j'ai regroupe
 # juste au dessus en utilisant les champs du code insee
 df_feux_com = df_com %>%
   merge(
@@ -56,7 +60,7 @@ df_feux_com = df_com %>%
     by.y="code_INSEE"
   )
 
-# Je supprime le dataframe df_feux_gb_com car je n'en ai plus besoin (les données sont intégrées dans le
+# Je supprime le dataframe df_feux_gb_com car je n'en ai plus besoin (les donnees sont integrees dans le
 # dataframe df_feux_com)
 rm(df_feux_gb_com)
 
@@ -66,12 +70,12 @@ df_feux_com = subset(df_feux_com, df_feux_com@data$nbr_feux != "")
 
 # DFCI2
 
-# Je fais un group by pour regrouper les données selon le champ code_DFCI puis un summarise pour y associer
-# les données de surface brulée ainsi que de nombre de feux
+# Je fais un group by pour regrouper les donnees selon le champ code_DFCI puis un summarise pour y associer
+# les donnees de surface brulee ainsi que de nombre de feux
 df_feux_gb_dfci2 <- df_feux %>% group_by(code_DFCI) %>% summarize(surface_ha=sum(surface_ha), nbr_feux=n())
 
-# Je fait une jointure du shapefile du carroyage DFCI à 2km et des donnees promethees de feux que j'ai
-# regroupé juste au dessus en utilisant les champs du code DFCI
+# Je fait une jointure du shapefile du carroyage DFCI a 2km et des donnees promethees de feux que j'ai
+# regroupe juste au dessus en utilisant les champs du code DFCI
 df_feux_dfci2 = df_dfci2 %>%
   merge(
     x=df_dfci2,
@@ -80,7 +84,7 @@ df_feux_dfci2 = df_dfci2 %>%
     by.y="code_DFCI"
   )
 
-# Je supprime le dataframe df_feux_gb_dfci2 car je n'en ai plus besoin (les données sont intégrées dans le
+# Je supprime le dataframe df_feux_gb_dfci2 car je n'en ai plus besoin (les donnees sont integrees dans le
 # dataframe df_feux_dfci2)
 rm(df_feux_gb_dfci2)
 
@@ -89,12 +93,12 @@ df_feux_dfci2 = subset(df_feux_dfci2, df_feux_dfci2@data$nbr_feux != "")
 
 # DFCI20
 
-# Je fais un group by pour regrouper les données selon le champ code_DFCI puis un summarise pour y associer
-# les données de surface brulée ainsi que de nombre de feux
+# Je fais un group by pour regrouper les donnees selon le champ code_DFCI puis un summarise pour y associer
+# les donnees de surface brulee ainsi que de nombre de feux
 df_feux_gb_dfci20 <- df_feux %>% group_by(code_DFCI) %>% summarize(surface_ha=sum(surface_ha), nbr_feux=n())
 
-# Je fait une jointure du shapefile du carroyage DFCI à 20km et des donnees promethees de feux que j'ai
-# regroupé juste au dessus en utilisant les champs du code DFCI
+# Je fait une jointure du shapefile du carroyage DFCI a 20km et des donnees promethees de feux que j'ai
+# regroupe juste au dessus en utilisant les champs du code DFCI
 df_feux_dfci20 = ddf_dfci20 %>%
   merge(
     x=df_dfci20,
@@ -103,7 +107,7 @@ df_feux_dfci20 = ddf_dfci20 %>%
     by.y="code_DFCI"
   )
 
-# Je supprime le dataframe df_feux_gb_dfci20 car je n'en ai plus besoin (les données sont intégrées dans le
+# Je supprime le dataframe df_feux_gb_dfci20 car je n'en ai plus besoin (les donnees sont integrees dans le
 # dataframe df_feux_dfci20)
 rm(df_feux_gb_dfci20)
 
@@ -114,21 +118,29 @@ df_feux_dfci20 = subset(df_feux_dfci20, df_feux_dfci20@data$nbr_feux != "")
 # CARTE #
 #########
 
-# Fonction pour récupérer une palette de couleur selon un dataframe et un champ
+# Fonction pour recuperer une palette de couleur selon un dataframe et un champ
 get_pal <- function(df, colname="") {
   pal <- colorBin("YlOrRd", domain=df@data[colname])(df@data[colname])
   return(pal)
 }
 # TODO 'list' object cannot be coerced to type 'double'
-#get_pal(df_feux_com, "surface_ha")
+#get_pal supprimer toutes les variables qui m'ont permise de generer le graph
+#rm(map)
 
-palette_feux_com <- colorNumeric("YlOrRd", domain=df_feux_com@data$surface_ha)
-palette_feux_dfci2 <- colorNumeric("YlOrRd", domain=df_feux_dfci2@data$surface_ha)
+# Je définit les écarts de valeurs pour la légende et la coloration
+bins <- c(0, 100, 250, 500, 1000, 2500, Inf)
 
+# J'associe les écarts de valeurs avec une palette de couleur et un champ
+# La symbologie graphique est créé
+palette_feux_com <- colorBin("YlOrRd", domain=df_feux_com@data$surface_ha, bins=bins)
+palette_feux_dfci2 <- colorBin("YlOrRd", domain=df_feux_dfci2@data$surface_ha, bins=bins)
+
+# Je définit le contenu des popups pour la couche des feux selon la commune
 popup_com <- paste("Commune: ", df_feux_com@data$NOM_COM_M, "<br/>",
                    "Surface brulée: ", round(df_feux_com@data$surface_ha), "ha",
                    sep="") %>% lapply(htmltools::HTML)
 
+# Je définit le connu des popups pour la couhe des feux selon le carroyage dfci
 popup_dfci2 <- paste("Carreau DFCI: ", df_feux_dfci2@data$NOM, "<br/>",
                    "Surface brulée: ", round(df_feux_dfci2@data$surface_ha), "ha",
                    sep="") %>% lapply(htmltools::HTML)
@@ -137,7 +149,7 @@ popup_dfci2 <- paste("Carreau DFCI: ", df_feux_dfci2@data$NOM, "<br/>",
 map <- leaflet() %>% 
 
   # Localisation de base de la carte lorsqu'elle est initialisée
-  setView(5, 45, 6) %>%
+  setView(5, 45, 7) %>%
   
   # Ca sert à rien mais c'est pas pour la place que ça prend
   #addMiniMap(toggleDisplay=TRUE)
@@ -165,10 +177,6 @@ map <- leaflet() %>%
     weight=0.3,
     label=popup_com) %>%
   
-  # Ajout de la légende
-  # raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
-  # écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problèm
-  
   # Ajout des données DFCI à 2km 
   addPolygons(
     data=df_feux_dfci2,
@@ -178,6 +186,10 @@ map <- leaflet() %>%
     group="DFCI 2km",
     weight=0.3,
     label=popup_dfci2) %>%
+  
+  # Ajout de la légende
+  # raise Error in get(".xts_chob", .plotxtsEnv) : objet '.xts_chob' introuvable
+  # écrire leaflet::addLegend au lieu de %>% addLegend() à l'air de régler le problèm
 
   leaflet::addLegend(data=df_feux_com,
                      pal=palette_feux_com,
@@ -220,4 +232,4 @@ saveWidget(widget=map,
            selfcontained = FALSE)
 
 # Maintenant que c'est enregistré je peux supprimer toutes les variables qui m'ont permise de générer le graph
-#rm(map)
+rm(map)
